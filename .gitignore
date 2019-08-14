@@ -1,0 +1,23 @@
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+# Ignore all extension files
+Thumbs.db
+out/
+.vs/
+.vscode-test/
+
+# OSX
+.DS_Store
+
+# Node package manager
+npm-debug.log
+node_modules/
