@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import to from 'await-to-js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 
-import { TreeViewProvider } from './tree';
+import { ExtrinsicsTreeView, AccountsTreeView, StatesTreeView } from './tree';
 import { Substrate } from './substrate';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -19,12 +19,22 @@ export async function activate(context: vscode.ExtensionContext) {
 
  	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
 	const substrate = new Substrate(statusBar, vscode.workspace.rootPath || './', api);
-	const treeViewProvider = new TreeViewProvider(substrate);
-	vscode.window.registerTreeDataProvider('extrinsics', treeViewProvider);
+
+	const extrinsicsTreeView = new ExtrinsicsTreeView(substrate);
+	vscode.window.registerTreeDataProvider('extrinsics', extrinsicsTreeView);
+
+	const statesTreeView = new StatesTreeView(substrate);
+	vscode.window.registerTreeDataProvider('states', statesTreeView);
+
+	const accountsTreeView = new AccountsTreeView(substrate);
+	vscode.window.registerTreeDataProvider('accounts', accountsTreeView);
+
 	vscode.commands.registerCommand('nodes.startNode', substrate.startNode.bind(substrate));
 	vscode.commands.registerCommand('nodes.stopNode', substrate.stopNode.bind(substrate));
 	vscode.commands.registerCommand('nodes.clearChainData', substrate.clearChainData.bind(substrate));
 	vscode.commands.registerCommand('nodes.runExtrinsic', substrate.runExtrinsic.bind(substrate));
+	vscode.commands.registerCommand('accounts.addAccount', () => {});
+	vscode.commands.registerCommand('accounts.removeAccount', () => {});
 
 	substrate.setup();
 }

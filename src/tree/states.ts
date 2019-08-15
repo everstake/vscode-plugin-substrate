@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import { Substrate } from './substrate';
+import { Module } from './module';
+import { Substrate } from '../substrate';
 
-type Item = Module | Extrinsic;
+type Item = Module | StateItem;
 
-export class TreeViewProvider implements vscode.TreeDataProvider<Item> {
+export class StatesTreeView implements vscode.TreeDataProvider<Item> {
 	private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined> = new vscode.EventEmitter<Item | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<Item | undefined> = this._onDidChangeTreeData.event;
 
@@ -24,7 +25,6 @@ export class TreeViewProvider implements vscode.TreeDataProvider<Item> {
 			vscode.window.showInformationMessage('Not connected to any node');
 			return Promise.resolve([]);
 		}
-
 		const items = this.getItems(element);
 		return Promise.resolve(items);
 	}
@@ -35,22 +35,28 @@ export class TreeViewProvider implements vscode.TreeDataProvider<Item> {
 		let isModule: boolean;
 
 		if (element) {
-			[labels, descriptions] = this.substrate.getExtrinsics(element.label);
+			[labels, descriptions] = this.substrate.getStates(element.label);
 			isModule = false;
 		} else {
-			labels = this.substrate.getExtrinsicModules();
+			labels = this.substrate.getStateModules();
 			isModule = true;
 		}
 
-		return labels.map((value, index) => isModule ? new Module(value) : new Extrinsic(value, element!.label, descriptions[index]));
+		return labels.map((value, index) => {
+			if (isModule) {
+				return new Module(value);
+			}
+			// Todo: Add command to fetch chain data
+			return new StateItem(value, element!.label, descriptions[index]);
+		});
 	}
 }
 
-export class Extrinsic extends vscode.TreeItem {
-	contextValue = 'extrinsic';
+export class StateItem extends vscode.TreeItem {
+	contextValue = 'state';
 	iconPath = {
-		dark: path.join(__filename, '..', '..', 'assets', 'dark', 'extrinsic.svg'),
-		light: path.join(__filename, '..', '..', 'assets', 'light', 'extrinsic.svg'),
+		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'download.svg'),
+		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'download.svg'),
 	};
 
 	constructor(
@@ -64,20 +70,5 @@ export class Extrinsic extends vscode.TreeItem {
 
 	get tooltip(): string {
 		return this.description;
-	}
-}
-
-export class Module extends vscode.TreeItem {
-	contextValue = 'module';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', 'assets', 'dark', 'module.svg'),
-		light: path.join(__filename, '..', '..', 'assets', 'light', 'module.svg'),
-	};
-
-	constructor(
-		public readonly label: string,
-		public readonly command?: vscode.Command,
-	) {
-		super(label, vscode.TreeItemCollapsibleState.Collapsed);
 	}
 }

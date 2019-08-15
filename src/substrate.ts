@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as util from 'util';
 import to from 'await-to-js';
 import { ApiPromise } from '@polkadot/api';
+import { Keyring } from '@polkadot/keyring';
 import { exec as cp_exec, spawn } from 'child_process';
 
 import { Extrinsic } from './tree';
@@ -102,10 +103,16 @@ export class Substrate {
         return responses;
     }
 
+    getAcccounts(): { name: string, address: string }[] {
+        const keyring = new Keyring({ type: 'sr25519' });
+        const alice = keyring.addFromUri('//Alice');
+        return [{ name: 'Alice', address: alice.address }];
+    }
+
     getExtrinsicModules(): string[] {
         const keys = Object.keys(this.api.tx).filter((value) => {
-            const extrinsics = Object.keys(this.api.tx[value]);
-            if (extrinsics.length > 0) {
+            const res = Object.keys(this.api.tx[value]);
+            if (res.length > 0) {
                 return true;
             }
             return false;
@@ -116,6 +123,23 @@ export class Substrate {
     getExtrinsics(key: string): [string[], string[]] {
         const keys = Object.keys(this.api.tx[key]);
         const docs = keys.map((val) => this.api.tx[key][val].toJSON().documentation.join('\n'));
+        return [keys, docs];
+    }
+
+    getStateModules(): string[] {
+        const keys = Object.keys(this.api.query).filter((value) => {
+            const res = Object.keys(this.api.query[value]);
+            if (res.length > 0) {
+                return true;
+            }
+            return false;
+        });
+        return keys;
+    }
+
+    getStates(key: string): [string[], string[]] {
+        const keys = Object.keys(this.api.query[key]);
+        const docs = keys.map((val) => (this.api.query[key][val] as any).toJSON().documentation.join('\n'));
         return [keys, docs];
     }
 
