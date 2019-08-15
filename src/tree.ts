@@ -30,18 +30,19 @@ export class TreeViewProvider implements vscode.TreeDataProvider<Item> {
 	}
 
 	getItems(element?: Item): Item[] {
-		let labels = [];
+		let labels: string[] = [];
+		let descriptions: string[] = [];
 		let isModule: boolean;
 
 		if (element) {
-			labels = this.substrate.getExtrinsics(element.label);
+			[labels, descriptions] = this.substrate.getExtrinsics(element.label);
 			isModule = false;
 		} else {
 			labels = this.substrate.getExtrinsicModules();
 			isModule = true;
 		}
 
-		return labels.map((value) => isModule ? new Module(value) : new Extrinsic(value));
+		return labels.map((value, index) => isModule ? new Module(value) : new Extrinsic(value, element!.label, descriptions[index]));
 	}
 }
 
@@ -54,9 +55,15 @@ export class Extrinsic extends vscode.TreeItem {
 
 	constructor(
 		public readonly label: string,
+		public readonly module: string,
+		public readonly description: string,
 		public readonly command?: vscode.Command,
 	) {
 		super(label, vscode.TreeItemCollapsibleState.None);
+	}
+
+	get tooltip(): string {
+		return this.description;
 	}
 }
 

@@ -21,18 +21,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	const substrate = new Substrate(statusBar, vscode.workspace.rootPath || './', api);
 	const treeViewProvider = new TreeViewProvider(substrate);
 	vscode.window.registerTreeDataProvider('extrinsics', treeViewProvider);
-	vscode.commands.registerCommand('pluginPolkadot.startNode', substrate.startNode.bind(substrate));
-	vscode.commands.registerCommand('pluginPolkadot.stopNode', substrate.stopNode.bind(substrate));
-	vscode.commands.registerCommand('pluginPolkadot.clearChainData', substrate.clearChainData.bind(substrate));
-	vscode.commands.registerCommand('pluginPolkadot.runExtrinsic', (item) => {
-		console.log(item);
-        vscode.window.showInputBox({
-            placeHolder: 'Great',
-            prompt: `Executing extrinsic ${item.label}`,
-        }).then((value?: string) => {
-            console.log("TCL: Substrate -> stopNode -> value", value);
-        });
-	});
+	vscode.commands.registerCommand('nodes.startNode', substrate.startNode.bind(substrate));
+	vscode.commands.registerCommand('nodes.stopNode', substrate.stopNode.bind(substrate));
+	vscode.commands.registerCommand('nodes.clearChainData', substrate.clearChainData.bind(substrate));
+	vscode.commands.registerCommand('nodes.runExtrinsic', substrate.runExtrinsic.bind(substrate));
 
 	substrate.setup();
 }

@@ -27,7 +27,7 @@
     "views": {
       "plugin-polkadot": [
         {
-          "id": "pluginPolkadot",
+          "id": "nodes",
           "name": "Substrate"
         },
         {
@@ -35,26 +35,26 @@
           "name": "Extrinsics"
         },
         {
-          "id": "chain",
+          "id": "chains",
           "name": "Chain state"
         }
       ]
     },
     "commands": [
       {
-        "command": "pluginPolkadot.startNode",
+        "command": "nodes.startNode",
         "title": "Start Local Node"
       },
       {
-        "command": "pluginPolkadot.stopNode",
+        "command": "nodes.stopNode",
         "title": "Stop Local Node"
       },
       {
-        "command": "pluginPolkadot.clearChainData",
+        "command": "nodes.clearChainData",
         "title": "Clear Chain Data"
       },
       {
-        "command": "pluginPolkadot.runExtrinsic",
+        "command": "nodes.runExtrinsic",
         "title": "Run",
         "icon": "assets/dark/run.svg"
       }
@@ -62,24 +62,24 @@
     "menus": {
       "view/title": [
         {
-          "command": "pluginPolkadot.startNode",
-          "when": "view == pluginPolkadot",
+          "command": "nodes.startNode",
+          "when": "view == nodes",
           "group": "section-1"
         },
         {
-          "command": "pluginPolkadot.stopNode",
-          "when": "view == pluginPolkadot",
+          "command": "nodes.stopNode",
+          "when": "view == nodes",
           "group": "section-1"
         },
         {
-          "command": "pluginPolkadot.clearChainData",
-          "when": "view == pluginPolkadot",
+          "command": "nodes.clearChainData",
+          "when": "view == nodes",
           "group": "section-2"
         }
       ],
       "view/item/context": [
         {
-					"command": "pluginPolkadot.runExtrinsic",
+					"command": "nodes.runExtrinsic",
 					"when": "view == extrinsics && viewItem == extrinsic",
 					"group": "inline"
         }

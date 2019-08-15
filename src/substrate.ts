@@ -4,7 +4,11 @@ import to from 'await-to-js';
 import { ApiPromise } from '@polkadot/api';
 import { exec as cp_exec, spawn } from 'child_process';
 
+import { Extrinsic } from './tree';
+
 const exec = util.promisify(cp_exec);
+
+export type ExtrinsicParameter = { type: string, name: string };
 
 export class Substrate {
     constructor(
@@ -14,8 +18,6 @@ export class Substrate {
     ) {}
 
     async setup() {
-        console.log('Started substrate setup');
-
         this.statusBar.text = 'Setup extension...';
         this.statusBar.show();
 
@@ -69,6 +71,37 @@ export class Substrate {
     	vscode.window.showInformationMessage('Clearing chain data');
     }
 
+    async runExtrinsic(item: Extrinsic) {
+        const module = this.api.tx[item.module];
+        const extrinsic = module[item.label];
+        const extObj = extrinsic.toJSON();
+        const params: ExtrinsicParameter[] = extObj.args;
+
+        // Todo: Choose account
+        const responses = await this.getValuesFromInput(params);
+        if (responses.length < params.length) {
+        	vscode.window.showInformationMessage('Extrinsic execution canceled');
+            return;
+        }
+        // Todo: Sign transaction with choosed account
+        // const result = extrinsic(...responses).signAndSend();
+        console.log("TCL: Substrate -> runExtrinsic -> responses", responses);
+	}
+
+    async getValuesFromInput(params: ExtrinsicParameter[]): Promise<string[]> {
+        const responses: string[] = [];
+        for (const [id, param] of params.entries()) {
+            const response = await vscode.window.showInputBox({
+                prompt: `${id+1}/${params.length} - ${param.name}: ${param.type}`,
+            });
+            if (response === undefined) {
+                break;
+            }
+            responses.push(response);
+        }
+        return responses;
+    }
+
     getExtrinsicModules(): string[] {
         const keys = Object.keys(this.api.tx).filter((value) => {
             const extrinsics = Object.keys(this.api.tx[value]);
@@ -80,8 +113,10 @@ export class Substrate {
         return keys;
     }
 
-    getExtrinsics(key: string): string[] {
-        return Object.keys(this.api.tx[key]);
+    getExtrinsics(key: string): [string[], string[]] {
+        const keys = Object.keys(this.api.tx[key]);
+        const docs = keys.map((val) => this.api.tx[key][val].toJSON().documentation.join('\n'));
+        return [keys, docs];
     }
 
     isConnected(): boolean {
