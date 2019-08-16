@@ -1,14 +1,15 @@
+import 'module-alias/register';
 import * as vscode from 'vscode';
 import to from 'await-to-js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 
-import { ExtrinsicsTreeView, AccountsTreeView, StatesTreeView, NodesTreeView } from './tree';
-import { Substrate } from './substrate';
+import * as commands from '@/commands';
+import * as treeViews from '@/trees';
+import { Substrate } from '@/substrate';
 
 export async function activate(context: vscode.ExtensionContext) {
-	console.log('Congratulations, extension "plugin-polkadot" is now active!');
-
-	// Todo: Get address from configuration
+	// Todo: Move to add node and get rid of this
+	// Todo: Get address from nodes in context's global storage
 	// Todo: Fix error on determine types
 	const provider = new WsProvider('ws://127.0.0.1:9944');
 	const [err, api] = await to(ApiPromise.create({ provider }));
@@ -20,24 +21,23 @@ export async function activate(context: vscode.ExtensionContext) {
  	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
 	const substrate = new Substrate(statusBar, context.globalState, api);
 
-	const nodesTreeView = new NodesTreeView(substrate);
-	vscode.window.registerTreeDataProvider('nodes', nodesTreeView);
+	const trees = new Map();
+	trees.set('nodes', new treeViews.NodesTreeView(substrate));
+	trees.set('extrinsics', new treeViews.ExtrinsicsTreeView(substrate));
+	trees.set('states', new treeViews.StatesTreeView(substrate));
+	trees.set('accounts', new treeViews.AccountsTreeView(substrate));
 
-	const extrinsicsTreeView = new ExtrinsicsTreeView(substrate);
-	vscode.window.registerTreeDataProvider('extrinsics', extrinsicsTreeView);
-
-	const statesTreeView = new StatesTreeView(substrate);
-	vscode.window.registerTreeDataProvider('states', statesTreeView);
-
-	const accountsTreeView = new AccountsTreeView(substrate);
-	vscode.window.registerTreeDataProvider('accounts', accountsTreeView);
-
-	vscode.commands.registerCommand('nodes.startNode', substrate.startNode.bind(substrate));
-	vscode.commands.registerCommand('nodes.stopNode', substrate.stopNode.bind(substrate));
-	vscode.commands.registerCommand('nodes.clearChainData', substrate.clearChainData.bind(substrate));
-	vscode.commands.registerCommand('nodes.runExtrinsic', substrate.runExtrinsic.bind(substrate));
-	vscode.commands.registerCommand('accounts.addAccount', accountsTreeView.addAccount.bind(accountsTreeView));
-	vscode.commands.registerCommand('accounts.removeAccount', accountsTreeView.removeAccount.bind(accountsTreeView));
+	try {
+		for (const [treeName, treeObject] of trees) {
+			const treeCom = (commands as any)[treeName];
+			for (const name of Object.keys(treeCom)) {
+				const com = new treeCom[name](context, trees, substrate, treeName);
+			}
+			vscode.window.registerTreeDataProvider(treeName, treeObject);
+		}
+	} catch(err) {
+		console.log('Failed to register command');
+	}
 
 	substrate.setup();
 }

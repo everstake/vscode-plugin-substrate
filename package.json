@@ -58,7 +58,17 @@
         "title": "Clear Chain Data"
       },
       {
-        "command": "nodes.runExtrinsic",
+        "command": "nodes.addNode",
+        "title": "Add node",
+        "icon": "assets/dark/add.svg"
+      },
+      {
+        "command": "nodes.removeNode",
+        "title": "Remove node",
+        "icon": "assets/dark/remove.svg"
+      },
+      {
+        "command": "extrinsics.runExtrinsic",
         "title": "Run",
         "icon": "assets/dark/run.svg"
       },
@@ -71,19 +81,28 @@
         "command": "accounts.removeAccount",
         "title": "Run",
         "icon": "assets/dark/remove.svg"
+      },
+      {
+        "command": "states.subscribe",
+        "title": "Subscribe for data"
       }
     ],
     "menus": {
       "view/title": [
         {
+          "command": "nodes.addNode",
+          "when": "view == nodes",
+          "group": "navigation"
+        },
+        {
           "command": "nodes.startNode",
           "when": "view == nodes",
-          "group": "section-1"
+          "group": "section-2"
         },
         {
           "command": "nodes.stopNode",
           "when": "view == nodes",
-          "group": "section-1"
+          "group": "section-2"
         },
         {
           "command": "nodes.clearChainData",
@@ -98,7 +117,12 @@
       ],
       "view/item/context": [
         {
-          "command": "nodes.runExtrinsic",
+          "command": "nodes.removeNode",
+          "when": "view == nodes && viewItem == node",
+          "group": "inline"
+        },
+        {
+          "command": "extrinsics.runExtrinsic",
           "when": "view == extrinsics && viewItem == extrinsic",
           "group": "inline"
         },
@@ -106,6 +130,11 @@
           "command": "accounts.removeAccount",
           "when": "view == accounts && viewItem == account",
           "group": "inline"
+        },
+        {
+          "command": "states.subscribe",
+          "when": "view == states && viewItem == state",
+          "group": "section-1"
         }
       ]
     }
@@ -131,7 +160,11 @@
   "dependencies": {
     "@polkadot/api": "^0.90.0-beta.50",
     "@polkadot/keyring": "^1.1.1",
-    "await-to-js": "^2.1.1"
+    "await-to-js": "^2.1.1",
+    "module-alias": "^2.2.1"
+  },
+  "_moduleAliases": {
+    "@": "out"
   },
   "extensionDependencies": [
     "rust-lang.rust"
