@@ -64,7 +64,8 @@
       },
       {
         "command": "accounts.addAccount",
-        "title": "Add account"
+        "title": "Add account",
+        "icon": "assets/dark/add.svg"
       },
       {
         "command": "accounts.removeAccount",
@@ -88,6 +89,11 @@
           "command": "nodes.clearChainData",
           "when": "view == nodes",
           "group": "section-2"
+        },
+        {
+          "command": "accounts.addAccount",
+          "when": "view == accounts",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

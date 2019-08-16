@@ -3,9 +3,11 @@ import * as path from 'path';
 
 import { Substrate } from '../substrate';
 
-type Item = AccountItem;
+type Item = NodeItem;
 
-export class AccountsTreeView implements vscode.TreeDataProvider<Item> {
+export type NodeInfo = { name: string, ip: string };
+
+export class NodesTreeView implements vscode.TreeDataProvider<Item> {
 	private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined> = new vscode.EventEmitter<Item | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<Item | undefined> = this._onDidChangeTreeData.event;
 
@@ -21,7 +23,7 @@ export class AccountsTreeView implements vscode.TreeDataProvider<Item> {
 
 	getChildren(element?: Item): Thenable<Item[]> {
 		if (!this.substrate.isConnected()) {
-			vscode.window.showInformationMessage('Not connected to any node');
+			vscode.window.showInformationMessage('Not connected to node');
 			return Promise.resolve([]);
 		}
 		const items = this.getItems(element);
@@ -29,26 +31,26 @@ export class AccountsTreeView implements vscode.TreeDataProvider<Item> {
 	}
 
 	getItems(element?: Item): Item[] {
-		const accounts = this.substrate.getAcccounts();
-		return accounts.map(({ meta: { name }, address }) => new AccountItem(name, address));
+		const nodes = this.substrate.getNodes();
+		return nodes.map(({ name, ip }) => new NodeItem(name, ip));
 	}
 
-	async addAccount() {
-		await this.substrate.addAccount();
+	async addNode() {
+		// await this.substrate.addNode();
 		this.refresh();
 	}
 
-	async removeAccount(item: Item) {
-		await this.substrate.removeAccount(item);
+	async removeNode(item: Item) {
+		// await this.substrate.removeNode(item);
 		this.refresh();
 	}
 }
 
-export class AccountItem extends vscode.TreeItem {
-	contextValue = 'account';
+export class NodeItem extends vscode.TreeItem {
+	contextValue = 'node';
 	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'account.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'account.svg'),
+		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'node.svg'),
+		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'node.svg'),
 	};
 
 	constructor(

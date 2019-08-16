@@ -3,24 +3,30 @@ import * as util from 'util';
 import to from 'await-to-js';
 import { ApiPromise } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
-import { exec as cp_exec, spawn } from 'child_process';
+import { exec as cp_exec } from 'child_process';
 
-import { Extrinsic } from './tree';
+import { Extrinsic, AccountItem, NodeInfo } from './tree';
+import { KeyringPair } from '@polkadot/keyring/types';
 
 const exec = util.promisify(cp_exec);
 
 export type ExtrinsicParameter = { type: string, name: string };
 
 export class Substrate {
+    keyring = new Keyring({ type: 'sr25519' });
+    enc = new util.TextEncoder();
+
     constructor(
         private statusBar: vscode.StatusBarItem,
-        private workspaceRoot: string,
+        private globalState: vscode.Memento,
         private api: ApiPromise,
     ) {}
 
     async setup() {
         this.statusBar.text = 'Setup extension...';
         this.statusBar.show();
+
+        this.setupDevAccounts();
 
         let [err, data] = await to(exec('which curl'));
         if (err) {
@@ -45,6 +51,11 @@ export class Substrate {
 
         this.statusBar.hide();
         vscode.window.showInformationMessage('Successfully installed Substrate');
+    }
+
+    setupDevAccounts() {
+        // const keyring = new Keyring({ type: 'sr25519' });
+        // const alice = keyring.addFromUri('//Alice');
     }
 
     async startNode() {
@@ -103,10 +114,71 @@ export class Substrate {
         return responses;
     }
 
-    getAcccounts(): { name: string, address: string }[] {
-        const keyring = new Keyring({ type: 'sr25519' });
-        const alice = keyring.addFromUri('//Alice');
-        return [{ name: 'Alice', address: alice.address }];
+    getAcccounts(): KeyringPair[] {
+        const accounts = this.globalState.get<KeyringPair[]>('accounts');
+        if (!accounts) {
+            return [];
+        }
+        return accounts;
+    }
+
+    async addAccount() {
+        const name = await vscode.window.showInputBox({
+            prompt: `Account name`,
+        });
+        if (name === undefined) {
+            return;
+        }
+        const key = await vscode.window.showInputBox({
+            prompt: `Account key`,
+        });
+        if (key === undefined) {
+            return;
+        }
+        if (this.isAccountExists(key)) {
+            vscode.window.showWarningMessage('Account with same key already exists. Account not added');
+            return;
+        }
+
+        const pair = this.createKeyringPair(key);
+        pair.setMeta({ name });
+
+        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        accounts.push(pair);
+        this.globalState.update('accounts', accounts);
+    }
+
+    isAccountExists(key: string): boolean {
+        const result = this.globalState.get<KeyringPair[]>('accounts') || [];
+        const exKey = result.find((val) => val.meta.name === key);
+        if (!exKey) {
+            return false;
+        }
+        return true;
+    }
+
+    createKeyringPair(key: string): KeyringPair {
+        const pair = this.keyring.addFromUri(key);
+        if (pair) {
+            return pair;
+        }
+        // Todo: Add mnemonic and json input
+        const newPair = this.keyring.addFromSeed(this.enc.encode(key));
+        return newPair;
+    }
+
+    async removeAccount(item: AccountItem) {
+        const response = await vscode.window.showInputBox({
+            prompt: `Are you sure want to remove account ${item.label}`,
+        });
+        if (response !== 'yes') {
+            return;
+        }
+        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        const index = accounts.findIndex((val) => val.address === item.description);
+        accounts.splice(index, 1);
+        this.globalState.update('accounts', accounts);
+        vscode.window.showInformationMessage(`Successfully removed account "${item.label}"`);
     }
 
     getExtrinsicModules(): string[] {
@@ -141,6 +213,10 @@ export class Substrate {
         const keys = Object.keys(this.api.query[key]);
         const docs = keys.map((val) => (this.api.query[key][val] as any).toJSON().documentation.join('\n'));
         return [keys, docs];
+    }
+
+    getNodes() {
+        return this.globalState.get<NodeInfo[]>('nodes') || [];
     }
 
     isConnected(): boolean {
