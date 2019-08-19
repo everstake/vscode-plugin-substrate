@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
-import { TreeView } from '@/common/treeView';
 import { Substrate } from '@/substrate';
-
-type Trees = Map<string, TreeView<any>>;
+import { Trees } from '@/trees';
 
 export default abstract class BaseCommand {
   constructor(protected context: vscode.ExtensionContext, protected trees: Trees, protected substrate: Substrate, view: string) {

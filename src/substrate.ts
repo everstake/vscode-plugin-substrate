@@ -1,30 +1,32 @@
 import * as vscode from 'vscode';
 import * as util from 'util';
 import to from 'await-to-js';
-import { ApiPromise } from '@polkadot/api';
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 
 import { NodeInfo, ExtrinsicParameter } from '@/trees';
+import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 
 const exec = util.promisify(cp_exec);
 
 export class Substrate {
-    keyring = new Keyring({ type: 'sr25519' });
-    enc = new util.TextEncoder();
+    private api?: ApiPromise;
+    private keyring = new Keyring({ type: 'sr25519' });
+    private enc = new util.TextEncoder();
 
     constructor(
         private statusBar: vscode.StatusBarItem,
         private globalState: vscode.Memento,
-        public api: ApiPromise,
     ) {}
 
     async setup() {
         this.statusBar.text = 'Setup extension...';
         this.statusBar.show();
 
-        this.setupDevAccounts();
+        await this.setupConnection();
+        await this.setupDevAccounts();
 
         let [err, data] = await to(exec('which curl'));
         if (err) {
@@ -51,9 +53,45 @@ export class Substrate {
         vscode.window.showInformationMessage('Successfully installed Substrate');
     }
 
-    setupDevAccounts() {
+    async setupDevAccounts() {
         // const keyring = new Keyring({ type: 'sr25519' });
         // const alice = keyring.addFromUri('//Alice');
+    }
+
+    async setupConnection() {
+        const nodes: NodeInfo[] = this.globalState.get('nodes') || [];
+
+        const node = this.globalState.get('connected-node');
+        const conNode = nodes.find(val => val.name === node);
+
+        let name: string;
+        let endpoint: string;
+        if (conNode) {
+            endpoint = conNode.endpoint;
+            name = conNode.name;
+        } else {
+            endpoint = 'ws://127.0.0.1:9944/';
+            name = 'Default';
+        }
+
+        if (!conNode && endpoint === 'ws://127.0.0.1:9944/') {
+            nodes.push({ endpoint, name } as NodeInfo);
+            await this.globalState.update('nodes', nodes);
+        }
+        await this.connectTo(name, endpoint);
+    }
+
+    async connectTo(name: string, endpoint: string) {
+        // Todo: Fix error on determine types
+        const provider = new WsProvider(endpoint);
+        const [err, api] = await to(ApiPromise.create({ provider }));
+        if (err || api === undefined) {
+            console.log('Fatal: ', err.message);
+            return;
+        }
+        this.api = api;
+        await this.globalState.update('connected-node', name);
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 
     async getValuesFromInput(params: ExtrinsicParameter[]): Promise<string[]> {
@@ -98,8 +136,11 @@ export class Substrate {
     }
 
     getExtrinsicModules(): string[] {
-        const keys = Object.keys(this.api.tx).filter((value) => {
-            const res = Object.keys(this.api.tx[value]);
+        if (!this.isConnected()) {
+            return [];
+        }
+        const keys = Object.keys(this.api!.tx).filter((value) => {
+            const res = Object.keys(this.api!.tx[value]);
             if (res.length > 0) {
                 return true;
             }
@@ -109,14 +150,28 @@ export class Substrate {
     }
 
     getExtrinsics(key: string): [string[], string[]] {
-        const keys = Object.keys(this.api.tx[key]);
-        const docs = keys.map((val) => this.api.tx[key][val].toJSON().documentation.join('\n'));
+        if (!this.isConnected()) {
+            return [[], []];
+        }
+        const keys = Object.keys(this.api!.tx[key]);
+        const docs = keys.map((val) => this.api!.tx[key][val].toJSON().documentation.join('\n'));
         return [keys, docs];
     }
 
+    getExtrinsic(module: string, key: string): SubmittableExtrinsicFunction<'promise'> | undefined {
+        if (!this.isConnected()) {
+            return;
+        }
+        const keys = Object.keys(this.api!.tx[key]);
+        return this.api!.tx[module][key];
+    }
+
     getStateModules(): string[] {
-        const keys = Object.keys(this.api.query).filter((value) => {
-            const res = Object.keys(this.api.query[value]);
+        if (!this.isConnected()) {
+            return [];
+        }
+        const keys = Object.keys(this.api!.query).filter((value) => {
+            const res = Object.keys(this.api!.query[value]);
             if (res.length > 0) {
                 return true;
             }
@@ -126,8 +181,11 @@ export class Substrate {
     }
 
     getStates(key: string): [string[], string[]] {
-        const keys = Object.keys(this.api.query[key]);
-        const docs = keys.map((val) => (this.api.query[key][val] as any).toJSON().documentation.join('\n'));
+        if (!this.isConnected()) {
+            return [[], []];
+        }
+        const keys = Object.keys(this.api!.query[key]);
+        const docs = keys.map((val) => (this.api!.query[key][val] as any).toJSON().documentation.join('\n'));
         return [keys, docs];
     }
 

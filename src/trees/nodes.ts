@@ -9,21 +9,21 @@ type Item = NodeItem;
 export type NodeInfo = { name: string, endpoint: string };
 
 export class NodesTreeView extends TreeView<Item> {
-	constructor(private substrate: Substrate) {
+	constructor(private context: vscode.ExtensionContext, private substrate: Substrate) {
 		super();
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		if (!this.substrate.isConnected()) {
-			vscode.window.showInformationMessage('Not connected to node');
-			return Promise.resolve([]);
-		}
 		const items = this.getItems(element);
 		return Promise.resolve(items);
 	}
 
 	getItems(element?: Item): Item[] {
 		const nodes = this.substrate.getNodes();
-		return nodes.map(({ name, endpoint }) => new NodeItem(name, endpoint));
+		const node = this.context.globalState.get('connected-node');
+		return nodes.map(({ name, endpoint }) => {
+			const isConnected = node === name;
+			return new NodeItem(name, endpoint, isConnected);
+		});
 	}
 }

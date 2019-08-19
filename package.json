@@ -47,15 +47,15 @@
     "commands": [
       {
         "command": "nodes.startNode",
-        "title": "Start Local Node"
+        "title": "Start local node"
       },
       {
         "command": "nodes.stopNode",
-        "title": "Stop Local Node"
+        "title": "Stop node"
       },
       {
         "command": "nodes.clearChainData",
-        "title": "Clear Chain Data"
+        "title": "Clear chain data"
       },
       {
         "command": "nodes.addNode",
@@ -64,12 +64,20 @@
       },
       {
         "command": "nodes.removeNode",
-        "title": "Remove node",
+        "title": "Remove...",
         "icon": "assets/dark/remove.svg"
       },
       {
+        "command": "nodes.connectToNode",
+        "title": "Connect..."
+      },
+      {
+        "command": "nodes.refresh",
+        "title": "Refresh"
+      },
+      {
         "command": "extrinsics.runExtrinsic",
-        "title": "Run",
+        "title": "Execute extrinsic",
         "icon": "assets/dark/run.svg"
       },
       {
@@ -79,7 +87,7 @@
       },
       {
         "command": "accounts.removeAccount",
-        "title": "Run",
+        "title": "Remove...",
         "icon": "assets/dark/remove.svg"
       },
       {
@@ -100,16 +108,6 @@
           "group": "section-2"
         },
         {
-          "command": "nodes.stopNode",
-          "when": "view == nodes",
-          "group": "section-2"
-        },
-        {
-          "command": "nodes.clearChainData",
-          "when": "view == nodes",
-          "group": "section-2"
-        },
-        {
           "command": "accounts.addAccount",
           "when": "view == accounts",
           "group": "navigation"
@@ -117,19 +115,34 @@
       ],
       "view/item/context": [
         {
+          "command": "nodes.connectToNode",
+          "when": "view == nodes && viewItem == node",
+          "group": "section-1"
+        },
+        {
+          "command": "nodes.stopNode",
+          "when": "view == nodes && viewItem == node",
+          "group": "section-2"
+        },
+        {
+          "command": "nodes.clearChainData",
+          "when": "view == nodes && viewItem == node",
+          "group": "section-2"
+        },
+        {
           "command": "nodes.removeNode",
           "when": "view == nodes && viewItem == node",
-          "group": "inline"
+          "group": "section-2"
         },
         {
           "command": "extrinsics.runExtrinsic",
           "when": "view == extrinsics && viewItem == extrinsic",
-          "group": "inline"
+          "group": "section-1"
         },
         {
           "command": "accounts.removeAccount",
           "when": "view == accounts && viewItem == account",
-          "group": "inline"
+          "group": "section-1"
         },
         {
           "command": "states.subscribe",

@@ -8,12 +8,10 @@ export class RemoveAccountCommand extends BaseCommand {
     async run(item: AccountItem) {
         const tree = this.trees.get('accounts') as AccountsTreeView;
 
-        const response = await vscode.window.showInputBox({
-            prompt: `Are you sure want to remove account ${item.label}`,
-        });
-        if (response !== 'yes') {
-            return;
-        }
+        // vscode.window.showOpenDialog({
+        //     a
+        // })
+
         const accounts = this.context.globalState.get<KeyringPair[]>('accounts') || [];
         const index = accounts.findIndex((val) => val.address === item.description);
         accounts.splice(index, 1);

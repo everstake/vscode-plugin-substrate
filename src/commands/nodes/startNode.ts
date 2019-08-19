@@ -4,12 +4,12 @@ import to from 'await-to-js';
 import { exec as cp_exec } from 'child_process';
 
 import BaseCommand from "@/common/baseCommand";
-import { NodesTreeView, NodeInfo } from "@/trees";
+import { NodesTreeView } from "@/trees";
 
 const exec = promisify(cp_exec);
 
 export class StartNodeCommand extends BaseCommand {
-    async run(item: NodeInfo) {
+    async run() {
         const tree = this.trees.get('nodes') as NodesTreeView;
 
         console.log('Starting substrate node');

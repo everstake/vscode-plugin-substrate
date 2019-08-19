@@ -5,8 +5,11 @@ import { Extrinsic, ExtrinsicParameter } from "@/trees";
 
 export class RunExtrinsicCommand extends BaseCommand {
     async run(item: Extrinsic) {
-        const module = this.substrate.api.tx[item.module];
-        const extrinsic = module[item.label];
+        const extrinsic = this.substrate.getExtrinsic(item.module, item.label);
+        if (extrinsic === undefined) {
+        	vscode.window.showInformationMessage('Not connected to node');
+            return;
+        }
         const extObj = extrinsic.toJSON();
         const params: ExtrinsicParameter[] = extObj.args;
 

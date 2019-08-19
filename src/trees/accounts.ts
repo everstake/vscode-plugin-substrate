@@ -7,15 +7,11 @@ import { TreeView } from '@/common';
 type Item = AccountItem;
 
 export class AccountsTreeView extends TreeView<Item> {
-	constructor(private substrate: Substrate) {
+	constructor(private context: vscode.ExtensionContext, private substrate: Substrate) {
 		super();
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		if (!this.substrate.isConnected()) {
-			vscode.window.showInformationMessage('Not connected to any node');
-			return Promise.resolve([]);
-		}
 		const items = this.getItems(element);
 		return Promise.resolve(items);
 	}

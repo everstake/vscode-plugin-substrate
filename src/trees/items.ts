@@ -41,14 +41,11 @@ export class Extrinsic extends vscode.TreeItem {
 
 export class NodeItem extends vscode.TreeItem {
 	contextValue = 'node';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'node.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'node.svg'),
-	};
 
 	constructor(
 		public readonly label: string,
 		public readonly description: string,
+		public readonly isConnected: boolean,
 		public readonly command?: vscode.Command,
 	) {
 		super(label, vscode.TreeItemCollapsibleState.None);
@@ -56,6 +53,19 @@ export class NodeItem extends vscode.TreeItem {
 
 	get tooltip(): string {
 		return this.description;
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		if (this.isConnected) {
+			return {
+				dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'connect.svg'),
+				light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'connect.svg'),
+			};
+		}
+		return {
+			dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'node.svg'),
+			light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'node.svg'),
+		};
 	}
 }
 
