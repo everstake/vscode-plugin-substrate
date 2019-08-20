@@ -63,22 +63,17 @@ export class Substrate {
 
         const node = this.globalState.get('connected-node');
         const conNode = nodes.find(val => val.name === node);
-
-        let name: string;
-        let endpoint: string;
         if (conNode) {
-            endpoint = conNode.endpoint;
-            name = conNode.name;
-        } else {
-            endpoint = 'ws://127.0.0.1:9944/';
-            name = 'Default';
+            await this.connectTo(conNode.name, conNode.endpoint);
         }
 
-        if (!conNode && endpoint === 'ws://127.0.0.1:9944/') {
-            nodes.push({ endpoint, name } as NodeInfo);
+        const defaultNodeName = 'Default';
+        const defaultNodeEndpoint = 'ws://127.0.0.1:9944/';
+        const defaultNode = nodes.find(val => val.name === defaultNodeName);
+        if (!defaultNode) {
+            nodes.push({ endpoint: defaultNodeEndpoint, name: defaultNodeName } as NodeInfo);
             await this.globalState.update('nodes', nodes);
         }
-        await this.connectTo(name, endpoint);
     }
 
     async connectTo(name: string, endpoint: string) {
@@ -162,7 +157,6 @@ export class Substrate {
         if (!this.isConnected()) {
             return;
         }
-        const keys = Object.keys(this.api!.tx[key]);
         return this.api!.tx[module][key];
     }
 

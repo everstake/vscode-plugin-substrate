@@ -7,7 +7,7 @@ import { MultiStepInput } from '@/common';
 
 type AccountInfo = { name: string, key: string };
 
-export class AddAccountCommand extends BaseCommand {
+export class ImportAccountCommand extends BaseCommand {
     options = {
         title: 'Add account',
         totalSteps: 2,

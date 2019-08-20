@@ -86,6 +86,10 @@
         "icon": "assets/dark/add.svg"
       },
       {
+        "command": "accounts.importAccount",
+        "title": "Import account from file"
+      },
+      {
         "command": "accounts.removeAccount",
         "title": "Remove...",
         "icon": "assets/dark/remove.svg"
@@ -111,6 +115,11 @@
           "command": "accounts.addAccount",
           "when": "view == accounts",
           "group": "navigation"
+        },
+        {
+          "command": "accounts.importAccount",
+          "when": "view == accounts",
+          "group": "section-1"
         }
       ],
       "view/item/context": [
