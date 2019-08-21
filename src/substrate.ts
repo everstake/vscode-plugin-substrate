@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as util from 'util';
+import * as fs from 'fs';
 import to from 'await-to-js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
-import { KeyringPair } from '@polkadot/keyring/types';
+import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 
 import { NodeInfo, ExtrinsicParameter } from '@/trees';
@@ -111,23 +112,48 @@ export class Substrate {
         return accounts;
     }
 
-    isAccountExists(key: string): boolean {
+    isAccountExists(name: string): boolean {
         const result = this.globalState.get<KeyringPair[]>('accounts') || [];
-        const exKey = result.find((val) => val.meta.name === key);
+        const exKey = result.find((val) => val.meta.name === name);
         if (!exKey) {
             return false;
         }
         return true;
     }
 
-    createKeyringPair(key: string): KeyringPair {
-        const pair = this.keyring.addFromUri(key);
-        if (pair) {
-            return pair;
+    createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
+        // let pair: KeyringPair;
+        // if (type === 'uri') {
+        //     console.log("TCL: Substrate -> createKeyringPair -> uri");
+        //     pair = this.keyring.addFromUri(key);
+        // }
+        // else if (type === 'seed') {
+        //     console.log("TCL: Substrate -> createKeyringPair -> seed");
+        //     pair = this.keyring.addFromSeed(this.enc.encode(key));
+        // }
+        // else {
+        //     console.log("TCL: Substrate -> createKeyringPair -> mnemonic");
+        //     pair = this.keyring.addFromMnemonic(key);
+        // }
+        const pair = this.keyring.addFromUri(key, { name }, type);
+        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        accounts.push(pair);
+        this.globalState.update('accounts', accounts);
+    }
+
+    importKeyringPair(path: string) {
+        const rawdata = fs.readFileSync(path);
+        const keyring: KeyringPair$Json = JSON.parse(rawdata.toString());
+        const pair = this.keyring.addFromJson(keyring);
+
+        if (this.isAccountExists(pair.meta.name)) {
+            vscode.window.showWarningMessage('Account with same key already exists. Account not added');
+            return;
         }
-        // Todo: Add mnemonic and json input
-        const newPair = this.keyring.addFromSeed(this.enc.encode(key));
-        return newPair;
+
+        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        accounts.push(pair);
+        this.globalState.update('accounts', accounts);
     }
 
     getExtrinsicModules(): string[] {

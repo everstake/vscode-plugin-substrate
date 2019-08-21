@@ -1,42 +1,31 @@
 import * as vscode from 'vscode';
-import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
 import { AccountsTreeView } from "@/trees";
 import { MultiStepInput } from '@/common';
+import { KeypairType } from '@polkadot/util-crypto/types';
 
-type AccountInfo = { name: string, key: string };
+type AccountInfo = { name: string, key: string, type: KeypairType };
 
 export class AddAccountCommand extends BaseCommand {
     options = {
         title: 'Add account',
-        totalSteps: 2,
+        totalSteps: 3,
         ignoreFocusOut: true,
     };
 
     async run() {
-        const tree = this.trees.get('accounts') as AccountsTreeView;
-
         const state = {} as Partial<AccountInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            console.log('Node wasn\'t added');
+            console.log('Account wasn\'t added');
             return;
         }
         const value = state as AccountInfo;
 
-        if (this.substrate.isAccountExists(value.key)) {
-            vscode.window.showWarningMessage('Account with same key already exists. Account not added');
-            return;
-        }
+        this.substrate.createKeyringPair(value.key, value.name, value.type);
 
-        const pair = this.substrate.createKeyringPair(value.key);
-        pair.setMeta({ name: value.name });
-
-        const accounts = this.context.globalState.get<KeyringPair[]>('accounts') || [];
-        accounts.push(pair);
-        this.context.globalState.update('accounts', accounts);
-
+        const tree = this.trees.get('accounts') as AccountsTreeView;
         tree.refresh();
     }
 
@@ -47,12 +36,42 @@ export class AddAccountCommand extends BaseCommand {
             prompt: 'Account name',
             placeholder: 'ex. Alice',
             value: (typeof state.name === 'string') ? state.name : '',
-            validate: async (value) => (!value || !value.trim()) ? 'Name is required' : ''
+            validate: async (value) => {
+                if (!value || !value.trim()) {
+                    return 'Name is required';
+                }
+                if (this.substrate.isAccountExists(value)) {
+                    return 'Account with same name already exists';
+                }
+                return '';
+            }
         });
+        return (input: MultiStepInput) => this.addType(input, state);
+    }
+
+    async addType(input: MultiStepInput, state: Partial<AccountInfo>) {
+        const type = await input.showQuickPick({
+            ...this.options,
+            step: input.CurrentStepNumber,
+            items: [{
+                label: 'ed25519',
+            }, {
+                label: 'sr25519',
+            }]
+        });
+        state.type = type.label;
         return (input: MultiStepInput) => this.addKey(input, state);
     }
 
     async addKey(input: MultiStepInput, state: Partial<AccountInfo>) {
+        // let placeholder: string;
+        // if (state.type === 'mnemonic') {
+        //     placeholder = 'ex. apple tree ...';
+        // } else if (state.type === 'seed') {
+        //     placeholder = 'ex. 0x9e7728...';
+        // } else {
+        //     placeholder = 'ex. //Alice';
+        // }
         state.key = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,

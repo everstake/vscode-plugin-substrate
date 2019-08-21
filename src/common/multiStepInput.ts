@@ -1,4 +1,4 @@
-import { QuickPickItem, window, Disposable, CancellationToken, QuickInputButton, QuickInput, ExtensionContext, QuickInputButtons, Uri } from 'vscode';
+import { QuickPickItem, window, Disposable, QuickInputButton, QuickInput, QuickInputButtons } from 'vscode';
 
 export type InputStep = (input: MultiStepInput) => Thenable<InputStep | void>;
 
