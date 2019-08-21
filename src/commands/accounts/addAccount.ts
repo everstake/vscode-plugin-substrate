@@ -64,14 +64,6 @@ export class AddAccountCommand extends BaseCommand {
     }
 
     async addKey(input: MultiStepInput, state: Partial<AccountInfo>) {
-        // let placeholder: string;
-        // if (state.type === 'mnemonic') {
-        //     placeholder = 'ex. apple tree ...';
-        // } else if (state.type === 'seed') {
-        //     placeholder = 'ex. 0x9e7728...';
-        // } else {
-        //     placeholder = 'ex. //Alice';
-        // }
         state.key = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,

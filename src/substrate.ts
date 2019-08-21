@@ -6,16 +6,15 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
+import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 
 import { NodeInfo, ExtrinsicParameter } from '@/trees';
-import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 
 const exec = util.promisify(cp_exec);
 
 export class Substrate {
     private api?: ApiPromise;
     private keyring = new Keyring({ type: 'sr25519' });
-    private enc = new util.TextEncoder();
 
     constructor(
         private statusBar: vscode.StatusBarItem,
@@ -78,14 +77,15 @@ export class Substrate {
     }
 
     async connectTo(name: string, endpoint: string) {
-        // Todo: Fix error on determine types
-        const provider = new WsProvider(endpoint);
-        const [err, api] = await to(ApiPromise.create({ provider }));
-        if (err || api === undefined) {
-            console.log('Fatal: ', err.message);
-            return;
+        try {
+            // Todo: Fix errors on failed connection
+            // Todo: Fix error on determine types
+            const provider = new WsProvider(endpoint);
+            const api = await ApiPromise.create({ provider });
+            this.api = api;
+        } catch (err) {
+            console.log("TCL: Substrate -> connectTo -> err", err);
         }
-        this.api = api;
         await this.globalState.update('connected-node', name);
         await vscode.commands.executeCommand('nodes.refresh');
     }
@@ -122,19 +122,6 @@ export class Substrate {
     }
 
     createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
-        // let pair: KeyringPair;
-        // if (type === 'uri') {
-        //     console.log("TCL: Substrate -> createKeyringPair -> uri");
-        //     pair = this.keyring.addFromUri(key);
-        // }
-        // else if (type === 'seed') {
-        //     console.log("TCL: Substrate -> createKeyringPair -> seed");
-        //     pair = this.keyring.addFromSeed(this.enc.encode(key));
-        // }
-        // else {
-        //     console.log("TCL: Substrate -> createKeyringPair -> mnemonic");
-        //     pair = this.keyring.addFromMnemonic(key);
-        // }
         const pair = this.keyring.addFromUri(key, { name }, type);
         const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
         accounts.push(pair);

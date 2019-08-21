@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
 
 import BaseCommand from "@/common/baseCommand";
-import { NodesTreeView } from "@/trees";
 
 export class ClearChainDataCommand extends BaseCommand {
     async run() {
-        const tree = this.trees.get('nodes') as NodesTreeView;
-
-        console.log('Todo: Add clear chain data logic');
-
-        tree.refresh();
+        const terminalName = 'Substrate node';
+        let terminal = vscode.window.terminals.find(val => val.name === terminalName);
+        if (!terminal) {
+            terminal = vscode.window.createTerminal(terminalName);
+        }
+        terminal.sendText('cargo run -- purge-chain --dev');
+        terminal.show(false);
     }
 }

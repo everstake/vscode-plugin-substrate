@@ -1,26 +1,25 @@
 import * as vscode from 'vscode';
-import { promisify } from 'util';
-import to from 'await-to-js';
-import { exec as cp_exec } from 'child_process';
 
 import BaseCommand from "@/common/baseCommand";
 import { NodesTreeView } from "@/trees";
 
-const exec = promisify(cp_exec);
-
 export class StartNodeCommand extends BaseCommand {
     async run() {
-        const tree = this.trees.get('nodes') as NodesTreeView;
-
-        console.log('Starting substrate node');
-
-        const [err, data] = await to(exec('which substrate & which cargo'));
-        if (err) {
-            vscode.window.showErrorMessage("Substrate not installed");
-            return;
+        // const folders = vscode.workspace.workspaceFolders;
+        // if (!folders) {
+        //     vscode.window.showErrorMessage("Can not get workspace folder path");
+        //     return;
+        // }
+        // const path: string = folders[0].uri.fsPath;
+        const terminalName = 'Substrate node';
+        let terminal = vscode.window.terminals.find(val => val.name === terminalName);
+        if (!terminal) {
+            terminal = vscode.window.createTerminal(terminalName);
         }
-    	vscode.window.showInformationMessage('Substrate node running on port: 9944');
+        terminal.sendText('cargo run -- --dev');
+        terminal.show(false);
 
+        const tree = this.trees.get('nodes') as NodesTreeView;
         tree.refresh();
     }
 }
