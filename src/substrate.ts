@@ -6,7 +6,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
-import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
+import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 
 import { NodeInfo, ExtrinsicParameter } from '@/trees';
 
@@ -191,9 +191,17 @@ export class Substrate {
         if (!this.isConnected()) {
             return [[], []];
         }
-        const keys = Object.keys(this.api!.query[key]);
-        const docs = keys.map((val) => (this.api!.query[key][val] as any).toJSON().documentation.join('\n'));
+        const mod = this.api!.query[key];
+        const keys = Object.keys(mod);
+        const docs = keys.map((val) => (mod[val] as any).toJSON().documentation.join('\n'));
         return [keys, docs];
+    }
+
+    getState(module: string, key: string): StorageEntryPromise | undefined {
+        if (!this.isConnected()) {
+            return;
+        }
+        return this.api!.query[module][key];
     }
 
     getNodes() {

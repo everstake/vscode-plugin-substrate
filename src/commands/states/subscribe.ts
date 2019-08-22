@@ -1,24 +1,23 @@
 import * as vscode from 'vscode';
 
 import BaseCommand from "@/common/baseCommand";
-import { StatesTreeView, StateItem } from "@/trees";
+import { StateItem } from "@/trees";
 
 export class SubscribeCommand extends BaseCommand {
     async run(item: StateItem) {
-        const tree = this.trees.get('states') as StatesTreeView;
+        const state = this.substrate.getState(item.module, item.label);
+        if (state === undefined) {
+        	vscode.window.showInformationMessage('Can not get chain state');
+            return;
+        }
+        // Todo: Get argument from vscode input
+        const data = await state();
 
-        const panel = vscode.window.createWebviewPanel(
-            'extrinsicResult', // Identifies the type of the webview. Used internally
-            'Extrinsic Result', // Title of the panel displayed to the user
-            vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-            {} // Webview options. More on these later.
-        );
-        panel.webview.html = this.getWebviewContent();
-
-        tree.refresh();
+        const panel = vscode.window.createWebviewPanel('chainResult', 'Chain state result', vscode.ViewColumn.One);
+        panel.webview.html = this.getWebviewContent(item.label, data);
     }
 
-    getWebviewContent() {
+    getWebviewContent(chain: string, data: any) {
         return `
             <!DOCTYPE html>
             <html lang="en">
@@ -28,7 +27,8 @@ export class SubscribeCommand extends BaseCommand {
                 <title>Chain state</title>
             </head>
             <body>
-                <h1>Todo: Add chain state result</h1>
+                <h1>Result of ${chain}</h1>
+                <p>${data}</p>
             </body>
             </html>
         `;
