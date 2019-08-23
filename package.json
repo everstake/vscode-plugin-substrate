@@ -163,27 +163,56 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "npm-run-all compile:*",
+    "compile:extension": "tsc -p ./",
+    "compile:views": "webpack --mode development",
+    "watch": "npm-run-all -p watch:*",
+    "watch:extension": "tsc --watch -p ./",
+    "watch:views": "webpack --watch --mode development",
     "pretest": "yarn run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.21",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
     "@types/vscode": "^1.37.0",
+    "css-loader": "^3.2.0",
     "glob": "^7.1.4",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
     "mocha": "^6.1.4",
+    "npm-run-all": "^4.1.5",
+    "react-scripts": "^3.1.1",
+    "style-loader": "^1.0.0",
+    "ts-import-plugin": "^1.6.1",
+    "ts-loader": "^6.0.4",
     "tslint": "^5.12.1",
     "typescript": "^3.3.1",
-    "vscode-test": "^1.0.2"
+    "vsce": "^1.66.0",
+    "vscode-test": "^1.0.2",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
   },
   "dependencies": {
-    "@polkadot/api": "^0.90.0-beta.50",
-    "@polkadot/keyring": "^1.1.1",
+    "@polkadot/api": "^0.90.0-beta.70",
+    "@polkadot/api-contract": "^0.90.0-beta.70",
+    "@polkadot/app-contracts": "^0.34.0-beta.141",
+    "@polkadot/keyring": "^1.2.0-beta.1",
+    "@polkadot/react-components": "^0.34.0-beta.141",
+    "@polkadot/react-identicon": "^0.42.0-beta.35",
+    "@polkadot/react-params": "^0.34.0-beta.141",
+    "@polkadot/react-signer": "^0.34.0-beta.141",
+    "@polkadot/types": "^0.90.0-beta.70",
+    "@polkadot/ui-keyring": "^0.42.0-beta.35",
+    "@polkadot/ui-signer": "^0.34.0-beta.119",
     "await-to-js": "^2.1.1",
-    "module-alias": "^2.2.1"
+    "module-alias": "^2.2.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   },
   "_moduleAliases": {
     "@": "out"

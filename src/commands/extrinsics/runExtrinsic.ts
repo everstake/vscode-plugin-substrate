@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 import BaseCommand from "@/common/baseCommand";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
+
+const loadScript = (context: vscode.ExtensionContext, path: string) => {
+    const uri = vscode.Uri.file(context.asAbsolutePath(path)).with({ scheme: 'vscode-resource'}).toString();
+    return `<script src="${uri}"></script>`;
+};
 
 export class RunExtrinsicCommand extends BaseCommand {
     async run(item: Extrinsic) {
@@ -14,10 +20,14 @@ export class RunExtrinsicCommand extends BaseCommand {
         const params: ExtrinsicParameter[] = extObj.args;
 
         const panel = vscode.window.createWebviewPanel(
-            'extrinsicResult', // Identifies the type of the webview. Used internally
-            'Extrinsic Result', // Title of the panel displayed to the user
-            vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-            {} // Webview options. More on these later.
+            'extrinsicResult',
+            'Extrinsic Result',
+            vscode.ViewColumn.One,
+            {
+                enableScripts: true,
+                retainContextWhenHidden: true,
+                localResourceRoots: [ vscode.Uri.file(path.join(this.context.extensionPath, 'out')) ]
+            },
         );
         panel.webview.html = this.getWebviewContent();
 
@@ -34,16 +44,20 @@ export class RunExtrinsicCommand extends BaseCommand {
     }
 
     getWebviewContent() {
-        return `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Extrinsic result</title>
-        </head>
-        <body>
-            <h1>Todo: Add extrinsic execution result</h1>
-        </body>
-        </html>`;
+        return `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Extrinsic result</title>
+            </head>
+            <body>
+                <div id="root"></div>
+                ${loadScript(this.context, 'out/vendor.js')}
+                ${loadScript(this.context, 'out/extrinsic.js')}
+            </body>
+            </html>
+        `;
     }
 }
