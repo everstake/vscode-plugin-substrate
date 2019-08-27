@@ -33,7 +33,6 @@ export class StatesTreeView extends TreeView<Item> {
 			if (isModule) {
 				return new Module(value);
 			}
-			// Todo: Add command to fetch chain data
 			return new StateItem(value, element!.label, descriptions[index]);
 		});
 	}
