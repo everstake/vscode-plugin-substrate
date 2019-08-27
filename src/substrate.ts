@@ -21,6 +21,10 @@ export class Substrate {
         private globalState: vscode.Memento,
     ) {}
 
+    getConnection(): ApiPromise | undefined {
+        return this.api;
+    }
+
     async setup() {
         this.statusBar.text = 'Setup extension...';
         this.statusBar.show();

@@ -24,6 +24,7 @@ export class SubscribeCommand extends BaseCommand {
         const map = type['Map'];
         let argument = undefined;
         if (map !== undefined) {
+            console.log(`Chain state type: ${map}`);
             const state = { type: map.key } as Partial<ChainResult>;
             const result = await MultiStepInput.run(input => this.addArgument(input, state));
             if (!result) {
@@ -44,12 +45,13 @@ export class SubscribeCommand extends BaseCommand {
             const placeholder = 'ex. Alice';
             let items = [] as vscode.QuickPickItem[];
             const accounts = this.context.globalState.get<KeyringPair[]>('accounts');
-            if (accounts) {
-                items = accounts.map(account => ({
-                    label: account.meta['name'],
-                    description: account.address,
-                }));
+            if (!accounts) {
+                throw new Error('No accounts');
             }
+            items = accounts.map(account => ({
+                label: account.meta['name'],
+                description: account.address,
+            }));
             const result = await input.showQuickPick({
                 ...this.options,
                 step: input.CurrentStepNumber,
@@ -58,7 +60,7 @@ export class SubscribeCommand extends BaseCommand {
             });
             state.result = result.description;
         } else {
-            const placeholder = `Some data with ${state.result} type`;
+            const placeholder = `Some data with ${state.type} type`;
             state.result = await input.showInputBox({
                 ...this.options,
                 step: input.CurrentStepNumber,

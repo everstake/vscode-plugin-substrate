@@ -1,5 +1,6 @@
 import { QuickPickItem, window, Disposable, QuickInputButton, QuickInput, QuickInputButtons } from 'vscode';
 
+export type MultiStepInputCallback = (input: MultiStepInput) => Promise<any>;
 export type InputStep = (input: MultiStepInput) => Thenable<InputStep | void>;
 
 export class InputFlowAction {
