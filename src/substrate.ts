@@ -128,6 +128,17 @@ export class Substrate {
         this.globalState.update('accounts', accounts);
     }
 
+    alterNameOfKeyringPair(oldName: string, newName: string) {
+        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        for (const account of accounts) {
+            if (account.meta['name'] === oldName) {
+                account.meta['name'] = newName;
+                break;
+            }
+        }
+        this.globalState.update('accounts', accounts);
+    }
+
     importKeyringPair(path: string) {
         const rawdata = fs.readFileSync(path);
         const keyring: KeyringPair$Json = JSON.parse(rawdata.toString());

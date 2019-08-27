@@ -95,6 +95,10 @@
         "icon": "assets/dark/remove.svg"
       },
       {
+        "command": "accounts.renameAccount",
+        "title": "Change name..."
+      },
+      {
         "command": "states.subscribe",
         "title": "Subscribe for data"
       }
@@ -150,6 +154,11 @@
         },
         {
           "command": "accounts.removeAccount",
+          "when": "view == accounts && viewItem == account",
+          "group": "section-1"
+        },
+        {
+          "command": "accounts.renameAccount",
           "when": "view == accounts && viewItem == account",
           "group": "section-1"
         },
