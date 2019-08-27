@@ -22,7 +22,7 @@ export class SubscribeCommand extends BaseCommand {
         }
         const type = (state as any).toJSON().type;
         const map = type['Map'];
-        const args = [];
+        let argument = undefined;
         if (map !== undefined) {
             const state = { type: map.key } as Partial<ChainResult>;
             const result = await MultiStepInput.run(input => this.addArgument(input, state));
@@ -30,12 +30,13 @@ export class SubscribeCommand extends BaseCommand {
                 return;
             }
             const value = state as any;
-            args.push(value.result);
+            argument = value.result;
         }
-        const data = await state(...args);
 
         const panel = vscode.window.createWebviewPanel('chainResult', 'Chain state result', vscode.ViewColumn.One);
-        panel.webview.html = this.getWebviewContent(item.label, data);
+        state(argument, (data) => {
+            panel.webview.html = this.getWebviewContent(item.module, item.label, data);
+        });
     }
 
     async addArgument(input: MultiStepInput, state: Partial<ChainResult>) {
@@ -69,7 +70,7 @@ export class SubscribeCommand extends BaseCommand {
         }
     }
 
-    getWebviewContent(chain: string, data: any) {
+    getWebviewContent(module: string, chain: string, data: any) {
         return `
             <!DOCTYPE html>
             <html lang="en">
@@ -79,8 +80,8 @@ export class SubscribeCommand extends BaseCommand {
                 <title>Chain state</title>
             </head>
             <body>
-                <h1>Result of ${chain}</h1>
-                <span>${data}</span>
+                <h1>Result of "${chain}" in module "${module}"</h1>
+                <p>Result: <span>${data}</span></p>
             </body>
             </html>
         `;
