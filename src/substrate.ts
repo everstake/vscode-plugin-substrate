@@ -25,6 +25,10 @@ export class Substrate {
         return this.api;
     }
 
+    getKeyring(): Keyring {
+        return this.keyring;
+    }
+
     async setup() {
         this.statusBar.text = 'Setup extension...';
         this.statusBar.show();
@@ -108,16 +112,32 @@ export class Substrate {
         return responses;
     }
 
+    async updateAccounts(accounts: KeyringPair[]) {
+        const result = accounts.map(account => account);
+        await this.globalState.update('accounts', JSON.stringify(result));
+    }
+
     getAcccounts(): KeyringPair[] {
-        const accounts = this.globalState.get<KeyringPair[]>('accounts');
+        // this.updateAccounts([]);
+        // return [];
+        const accounts = this.globalState.get<string>('accounts');
         if (!accounts) {
             return [];
         }
-        return accounts;
+        const accs = JSON.parse(accounts);
+        const result: KeyringPair[] = accs.map((account: KeyringPair$Json) => this.keyring.addFromJson(account));
+        return result;
+    }
+
+    async removeAccount(name: string) {
+        const accounts = this.getAcccounts();
+        const index = accounts.findIndex((val) => val.meta['name'] === name);
+        accounts.splice(index, 1);
+        await this.updateAccounts(accounts);
     }
 
     isAccountExists(name: string): boolean {
-        const result = this.globalState.get<KeyringPair[]>('accounts') || [];
+        const result = this.getAcccounts();
         const exKey = result.find((val) => val.meta.name === name);
         if (!exKey) {
             return false;
@@ -125,22 +145,22 @@ export class Substrate {
         return true;
     }
 
-    createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
+    async createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
         const pair = this.keyring.addFromUri(key, { name }, type);
-        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        const accounts = this.getAcccounts();
         accounts.push(pair);
-        this.globalState.update('accounts', accounts);
+        await this.updateAccounts(accounts);
     }
 
-    alterNameOfKeyringPair(oldName: string, newName: string) {
-        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+    async alterNameOfKeyringPair(oldName: string, newName: string) {
+        const accounts = this.getAcccounts();
         for (const account of accounts) {
             if (account.meta['name'] === oldName) {
                 account.meta['name'] = newName;
                 break;
             }
         }
-        this.globalState.update('accounts', accounts);
+        await this.updateAccounts(accounts);
     }
 
     importKeyringPair(path: string) {
@@ -148,14 +168,14 @@ export class Substrate {
         const keyring: KeyringPair$Json = JSON.parse(rawdata.toString());
         const pair = this.keyring.addFromJson(keyring);
 
-        if (this.isAccountExists(pair.meta.name)) {
+        if (this.isAccountExists(pair.meta['name'])) {
             vscode.window.showWarningMessage('Account with same key already exists. Account not added');
             return;
         }
 
-        const accounts = this.globalState.get<KeyringPair[]>('accounts') || [];
+        const accounts = this.getAcccounts();
         accounts.push(pair);
-        this.globalState.update('accounts', accounts);
+        this.globalState.update('accounts', JSON.stringify(accounts));
     }
 
     getExtrinsicModules(): string[] {
@@ -208,7 +228,14 @@ export class Substrate {
         }
         const mod = this.api!.query[key];
         const keys = Object.keys(mod);
-        const docs = keys.map((val) => (mod[val] as any).toJSON().documentation.join('\n'));
+        const docs = keys.map((val) => {
+            const json = (mod[val] as any).toJSON();
+            const doc = json.documentation;
+            if (doc) {
+                return doc.join('\n');
+            }
+            return '';
+        });
         return [keys, docs];
     }
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
+// import * as path from 'path';
 import { SubmittableExtrinsic } from '@polkadot/api/SubmittableExtrinsic';
 import { KeyringPair } from '@polkadot/keyring/types';
 
@@ -8,7 +8,11 @@ import { Extrinsic, ExtrinsicParameter } from "@/trees";
 import { MultiStepInput, MultiStepInputCallback } from '@/common';
 import Keyring from '@polkadot/keyring';
 
-type ExtrinsicArgs = { account: KeyringPair, args: string[], params: ExtrinsicParameter[] };
+type ExtrinsicArgs = {
+    account: KeyringPair,
+    args: string[],
+    params: ExtrinsicParameter[],
+};
 
 const loadScript = (context: vscode.ExtensionContext, path: string) => {
     const uri = vscode.Uri.file(context.asAbsolutePath(path)).with({ scheme: 'vscode-resource'}).toString();
@@ -40,10 +44,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         const value = state as ExtrinsicArgs;
 
         try {
-            const keyring = new Keyring({ type: 'sr25519' });
-            value.account = (keyring).addFromUri('//Alice');
-            // Todo: Fix account type error
-
             const con = this.substrate.getConnection();
             if (!con) {
                 vscode.window.showErrorMessage('Not connected to a node');
@@ -88,7 +88,7 @@ export class RunExtrinsicCommand extends BaseCommand {
 
         if (param.type === 'AccountId') {
             let items = [] as vscode.QuickPickItem[];
-            const accounts = this.context.globalState.get<KeyringPair[]>('accounts') || [];
+            const accounts = this.substrate.getAcccounts();
             if (!accounts) {
                 throw new Error('No accounts');
             }
@@ -129,7 +129,7 @@ export class RunExtrinsicCommand extends BaseCommand {
 
     async addAccount(input: MultiStepInput, state: Partial<ExtrinsicArgs>) {
         let items = [] as vscode.QuickPickItem[];
-        const accounts = this.context.globalState.get<KeyringPair[]>('accounts') || [];
+        const accounts = this.substrate.getAcccounts();
         if (!accounts) {
             throw new Error('No accounts');
         }
@@ -143,7 +143,35 @@ export class RunExtrinsicCommand extends BaseCommand {
             placeholder: 'ex. Alice',
             items,
         });
-        state.account = accounts.find(account => result.label === account.meta['name']);
+        const account = accounts.find(account => result.label === account.meta['name']);
+        if (!account) {
+            vscode.window.showErrorMessage('Account not found');
+            return;
+        }
+        return (input: MultiStepInput) => this.addPassword(input, state, account);
+    }
+
+    async addPassword(input: MultiStepInput, state: Partial<ExtrinsicArgs>, account: KeyringPair) {
+        const keyring = this.substrate.getKeyring();
+        const password = await input.showInputBox({
+            ...this.options,
+            step: input.CurrentStepNumber,
+            prompt: 'Account password',
+            placeholder: 'ex. StrongPassword',
+            password: true,
+            value: '',
+            validate: async (_) => '',
+        });
+
+        try {
+            state.account = keyring.addFromAddress(account.address, account.meta);
+            // Todo: Unlock KeyringPair
+            // if (account.isLocked) {}
+            state.account.decodePkcs8(password);
+        } catch (err) {
+            console.log("TCL: addPassword -> err", err);
+        }
+        console.log("TCL: addPassword -> password", password);
     }
 
     getWebviewContent(result: any) {

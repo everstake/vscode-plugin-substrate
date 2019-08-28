@@ -20,24 +20,30 @@ export class SubscribeCommand extends BaseCommand {
         	vscode.window.showInformationMessage('Can not get chain state');
             return;
         }
-        const type = (state as any).toJSON().type;
-        const map = type['Map'];
         let argument = undefined;
-        if (map !== undefined) {
-            console.log(`Chain state type: ${map}`);
-            const state = { type: map.key } as Partial<ChainResult>;
-            const result = await MultiStepInput.run(input => this.addArgument(input, state));
-            if (!result) {
-                return;
+        const type = (state as any).toJSON().type;
+        if (type) {
+            const map = type['Map'];
+            if (map !== undefined) {
+                console.log('Chain state type:', map);
+                const state = { type: map.key } as Partial<ChainResult>;
+                const result = await MultiStepInput.run(input => this.addArgument(input, state));
+                if (!result) {
+                    return;
+                }
+                const value = state as any;
+                argument = value.result;
             }
-            const value = state as any;
-            argument = value.result;
         }
 
-        const panel = vscode.window.createWebviewPanel('chainResult', 'Chain state result', vscode.ViewColumn.One);
-        state(argument, (data) => {
-            panel.webview.html = this.getWebviewContent(item.module, item.label, data);
-        });
+        try {
+            const panel = vscode.window.createWebviewPanel('chainResult', 'Chain state result', vscode.ViewColumn.One);
+            await state(argument, (data) => {
+                panel.webview.html = this.getWebviewContent(item.module, item.label, data.isEmpty ? 'empty' : data);
+            });
+        } catch (err) {
+            vscode.window.showErrorMessage('Failed with error:', err);
+        }
     }
 
     async addArgument(input: MultiStepInput, state: Partial<ChainResult>) {
@@ -80,10 +86,21 @@ export class SubscribeCommand extends BaseCommand {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Chain state</title>
+                <style>
+                    textarea {
+                        border-radius: 5px;
+                        padding: 5px;
+                        min-width: 200px;
+                        min-height: 50px;
+                    }
+                    textarea:focus {
+                        outline: none;
+                    }
+                </style>
             </head>
             <body>
                 <h1>Result of "${chain}" in module "${module}"</h1>
-                <p>Result: <span>${data}</span></p>
+                <textarea>${data}</textarea>
             </body>
             </html>
         `;

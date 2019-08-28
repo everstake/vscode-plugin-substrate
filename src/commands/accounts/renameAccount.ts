@@ -22,7 +22,7 @@ export class RenameAccountCommand extends BaseCommand {
         }
         const value = state as AccountInfo;
 
-        this.substrate.alterNameOfKeyringPair(item.label, value.name);
+        await this.substrate.alterNameOfKeyringPair(item.label, value.name);
 
         const tree = this.trees.get('accounts') as AccountsTreeView;
         tree.refresh();

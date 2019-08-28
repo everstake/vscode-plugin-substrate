@@ -23,7 +23,7 @@ export class AddAccountCommand extends BaseCommand {
         }
         const value = state as AccountInfo;
 
-        this.substrate.createKeyringPair(value.key, value.name, value.type);
+        await this.substrate.createKeyringPair(value.key, value.name, value.type);
 
         const tree = this.trees.get('accounts') as AccountsTreeView;
         tree.refresh();
