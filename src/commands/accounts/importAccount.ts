@@ -18,7 +18,7 @@ export class ImportAccountCommand extends BaseCommand {
             console.log('Account wasn\'t added');
             return;
         }
-        this.substrate.importKeyringPair(res[0].path);
+        await this.substrate.importKeyringPair(res[0].path);
 
         const tree = this.trees.get('accounts') as AccountsTreeView;
         tree.refresh();

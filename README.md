@@ -15,6 +15,20 @@ Steps:
 2) Execute command `yarn` in terminal
 3) Press `F5`
 
+## How to use
+
+To start using this extension - install it from [marketplace]().
+
+## Features
+
+This extension provides next features:
+
+1) Start/Stop local node
+2) Clear chain data
+3) Manage accounts
+4) Execute extrinsics
+5) Subscribe for chain state changes
+
 ## License
 
 This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.

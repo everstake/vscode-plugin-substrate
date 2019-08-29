@@ -6,12 +6,13 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import BaseCommand from "@/common/baseCommand";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
 import { MultiStepInput, MultiStepInputCallback } from '@/common';
-import Keyring from '@polkadot/keyring';
+import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
     account: KeyringPair,
     args: string[],
     params: ExtrinsicParameter[],
+    success: boolean,
 };
 
 const loadScript = (context: vscode.ExtensionContext, path: string) => {
@@ -36,12 +37,15 @@ export class RunExtrinsicCommand extends BaseCommand {
         const params: ExtrinsicParameter[] = extObj.args;
 
         this.options.totalSteps = params.length + 1;
-        const state = { params, args: [] } as Partial<ExtrinsicArgs>;
+        const state = { params, args: [], success: false } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
             return;
         }
         const value = state as ExtrinsicArgs;
+        if (!value.success) {
+            return;
+        }
 
         try {
             const con = this.substrate.getConnection();
@@ -53,20 +57,21 @@ export class RunExtrinsicCommand extends BaseCommand {
             const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...value.args);
 
             // Todo: Get result
-            unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
+            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
                 if (status.isFinalized) {
-                    console.log('Completed at block hash', status.asFinalized.toHex());
-                    console.log('Events:');
+                    const finalized = status.asFinalized.toHex();
+                    console.log('Completed at block hash', finalized);
 
+                    console.log('Events:');
                     events.forEach(({ phase, event: { data, method, section } }) => {
                         console.log('\t', phase.toString(), `: ${section}.${method}`, data.toString());
                     });
 
-                    vscode.window.showInformationMessage(`Result`);
+                    vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
                 }
             });
         } catch (err) {
-            console.log(`Error on extrinsic: ${err}`);
+            vscode.window.showInformationMessage('Error on extrinsic:', err.message);
         }
         // const panel = vscode.window.createWebviewPanel(
         //     'extrinsicResult',
@@ -151,7 +156,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         return (input: MultiStepInput) => this.addPassword(input, state, account);
     }
 
-    async addPassword(input: MultiStepInput, state: Partial<ExtrinsicArgs>, account: KeyringPair) {
+    async addPassword(input: MultiStepInput, state: Partial<ExtrinsicArgs>, account: AccountKey) {
         const keyring = this.substrate.getKeyring();
         const password = await input.showInputBox({
             ...this.options,
@@ -162,16 +167,13 @@ export class RunExtrinsicCommand extends BaseCommand {
             value: '',
             validate: async (_) => '',
         });
-
         try {
-            state.account = keyring.addFromAddress(account.address, account.meta);
-            // Todo: Unlock KeyringPair
-            // if (account.isLocked) {}
+            state.account = keyring.addFromJson(account);
             state.account.decodePkcs8(password);
+            state.success = true;
         } catch (err) {
-            console.log("TCL: addPassword -> err", err);
+            vscode.window.showErrorMessage('Failed to decode account:', err);
         }
-        console.log("TCL: addPassword -> password", password);
     }
 
     getWebviewContent(result: any) {
@@ -182,6 +184,11 @@ export class RunExtrinsicCommand extends BaseCommand {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Extrinsic result</title>
+                <script>
+                    window.data = {
+                        "some_data": "some great data"
+                    };
+                </script>
             </head>
             <body>
                 <div id="root"></div>

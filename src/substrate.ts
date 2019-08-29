@@ -9,8 +9,11 @@ import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 
 import { NodeInfo, ExtrinsicParameter } from '@/trees';
+import console = require('console');
 
 const exec = util.promisify(cp_exec);
+
+export type AccountKey = KeyringPair$Json;
 
 export class Substrate {
     private api?: ApiPromise;
@@ -112,21 +115,18 @@ export class Substrate {
         return responses;
     }
 
-    async updateAccounts(accounts: KeyringPair[]) {
-        const result = accounts.map(account => account);
-        await this.globalState.update('accounts', JSON.stringify(result));
+    async updateAccounts(accounts: AccountKey[]) {
+        await this.globalState.update('accounts', JSON.stringify(accounts));
     }
 
-    getAcccounts(): KeyringPair[] {
+    getAcccounts(): AccountKey[] {
         // this.updateAccounts([]);
         // return [];
         const accounts = this.globalState.get<string>('accounts');
         if (!accounts) {
             return [];
         }
-        const accs = JSON.parse(accounts);
-        const result: KeyringPair[] = accs.map((account: KeyringPair$Json) => this.keyring.addFromJson(account));
-        return result;
+        return JSON.parse(accounts);
     }
 
     async removeAccount(name: string) {
@@ -148,7 +148,7 @@ export class Substrate {
     async createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
         const pair = this.keyring.addFromUri(key, { name }, type);
         const accounts = this.getAcccounts();
-        accounts.push(pair);
+        accounts.push(pair.toJson());
         await this.updateAccounts(accounts);
     }
 
@@ -163,10 +163,23 @@ export class Substrate {
         await this.updateAccounts(accounts);
     }
 
-    importKeyringPair(path: string) {
+    async importKeyringPair(path: string) {
         const rawdata = fs.readFileSync(path);
         const keyring: KeyringPair$Json = JSON.parse(rawdata.toString());
         const pair = this.keyring.addFromJson(keyring);
+        if (pair.isLocked) {
+            const password = await vscode.window.showInputBox({
+                prompt: 'Account password',
+                ignoreFocusOut: true,
+                password: true,
+            });
+            try {
+                pair.decodePkcs8(password);
+            } catch (error) {
+                vscode.window.showErrorMessage('Failed to decode pair');
+                return;
+            }
+        }
 
         if (this.isAccountExists(pair.meta['name'])) {
             vscode.window.showWarningMessage('Account with same key already exists. Account not added');
@@ -174,7 +187,7 @@ export class Substrate {
         }
 
         const accounts = this.getAcccounts();
-        accounts.push(pair);
+        accounts.push(pair.toJson());
         this.globalState.update('accounts', JSON.stringify(accounts));
     }
 

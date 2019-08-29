@@ -5,7 +5,8 @@ class App extends React.Component {
   public render() {
     return (
       <div>
-        <p>Hello there!</p>
+        <p>Hello world!</p>
+        <p>Some data: {(window as any).data}</p>
         {/* <Extrinsic
           defaultValue={console.log}
           label={'submit the following extrinsic'}
