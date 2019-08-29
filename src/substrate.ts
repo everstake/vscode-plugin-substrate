@@ -24,6 +24,10 @@ export class Substrate {
         private globalState: vscode.Memento,
     ) {}
 
+    isConnected(): boolean {
+        return this.api ? true : false;
+    }
+
     getConnection(): ApiPromise | undefined {
         return this.api;
     }
@@ -101,27 +105,11 @@ export class Substrate {
         await vscode.commands.executeCommand('nodes.refresh');
     }
 
-    async getValuesFromInput(params: ExtrinsicParameter[]): Promise<string[]> {
-        const responses: string[] = [];
-        for (const [id, param] of params.entries()) {
-            const response = await vscode.window.showInputBox({
-                prompt: `${id+1}/${params.length} - ${param.name}: ${param.type}`,
-            });
-            if (response === undefined) {
-                break;
-            }
-            responses.push(response);
-        }
-        return responses;
-    }
-
     async updateAccounts(accounts: AccountKey[]) {
         await this.globalState.update('accounts', JSON.stringify(accounts));
     }
 
     getAcccounts(): AccountKey[] {
-        // this.updateAccounts([]);
-        // return [];
         const accounts = this.globalState.get<string>('accounts');
         if (!accounts) {
             return [];
@@ -165,29 +153,13 @@ export class Substrate {
 
     async importKeyringPair(path: string) {
         const rawdata = fs.readFileSync(path);
-        const keyring: KeyringPair$Json = JSON.parse(rawdata.toString());
-        const pair = this.keyring.addFromJson(keyring);
-        if (pair.isLocked) {
-            const password = await vscode.window.showInputBox({
-                prompt: 'Account password',
-                ignoreFocusOut: true,
-                password: true,
-            });
-            try {
-                pair.decodePkcs8(password);
-            } catch (error) {
-                vscode.window.showErrorMessage('Failed to decode pair');
-                return;
-            }
-        }
-
+        const pair: KeyringPair$Json = JSON.parse(rawdata.toString());
         if (this.isAccountExists(pair.meta['name'])) {
             vscode.window.showWarningMessage('Account with same key already exists. Account not added');
             return;
         }
-
         const accounts = this.getAcccounts();
-        accounts.push(pair.toJson());
+        accounts.push(pair);
         this.globalState.update('accounts', JSON.stringify(accounts));
     }
 
@@ -261,9 +233,5 @@ export class Substrate {
 
     getNodes() {
         return this.globalState.get<NodeInfo[]>('nodes') || [];
-    }
-
-    isConnected(): boolean {
-        return this.api ? true : false;
     }
 }

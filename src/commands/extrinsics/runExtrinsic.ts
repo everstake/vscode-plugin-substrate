@@ -36,7 +36,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         const extObj = extrinsic.toJSON();
         const params: ExtrinsicParameter[] = extObj.args;
 
-        this.options.totalSteps = params.length + 1;
+        this.options.totalSteps = params.length + 2;
         const state = { params, args: [], success: false } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
@@ -56,18 +56,27 @@ export class RunExtrinsicCommand extends BaseCommand {
             const nonce = await con.query.system.accountNonce(value.account.address);
             const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...value.args);
 
-            // Todo: Get result
             await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     console.log('Completed at block hash', finalized);
 
                     console.log('Events:');
+                    let error: string = '';
                     events.forEach(({ phase, event: { data, method, section } }) => {
-                        console.log('\t', phase.toString(), `: ${section}.${method}`, data.toString());
+                        const res = `\t ${phase.toString()} : ${section}.${method} ${data.toString()}`;
+                        if (res.indexOf('Failed') !== -1) {
+                            error += res;
+                        }
+                        console.log(res);
                     });
 
-                    vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
+                    if (error !== '') {
+                        // Todo: Get error
+                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error:${error}`);
+                    } else {
+                        vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
+                    }
                 }
             });
         } catch (err) {
