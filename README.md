@@ -6,14 +6,14 @@ This plugin provides convinient development environment for Parity Substrate fra
 
 To start using this extension - install it from [marketplace](). To run this extension you need following pre-requirements:
 
-1) Visual Studio Code v1.35.0+
+1) Visual Studio Code v1.37.0+
 2) Yarn v1.13.0+
 
 Steps:
 
-1) Clone project and open in VSCode
-2) Execute command `yarn` in terminal
-3) Press `F5`
+1) Clone project and open it in VSCode.
+2) Execute command `yarn` and `yarn compile` in terminal.
+3) Press `F5`.
 
 ## Features
 
