@@ -85,11 +85,6 @@ export class MultiStepInput {
   }
 
   redoLastStep() {
-    // const input = window.createInputBox();
-    // if (this.current) {
-    //   this.current.dispose();
-    // }
-    // this.current = input;
     throw InputFlowAction.Back;
   }
 

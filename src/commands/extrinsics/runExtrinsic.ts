@@ -138,9 +138,10 @@ export class RunExtrinsicCommand extends BaseCommand {
             placeholder: 'ex. Some data',
             value: (typeof val === 'string') ? val : '',
             validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
+            // Todo: Add button logic
             buttons: [{
-                iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'add.svg'),
-                tooltip: 'Open from file'
+                iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'file.svg'),
+                tooltip: 'Open from file',
             }],
         });
         state.args!.push(result);
