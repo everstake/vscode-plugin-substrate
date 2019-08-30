@@ -31,5 +31,5 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate() {
-	vscode.window.showInformationMessage('Thanks for a great time together');
+	await vscode.window.showInformationMessage('Thanks for a great time together');
 }

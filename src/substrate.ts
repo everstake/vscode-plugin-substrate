@@ -45,27 +45,27 @@ export class Substrate {
 
         let [err, data] = await to(exec('which curl'));
         if (err) {
-            vscode.window.showErrorMessage('You have to install "curl" first');
+            await vscode.window.showErrorMessage('You have to install "curl" first');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
-            vscode.window.showInformationMessage('Substrate already installed');
+            await vscode.window.showInformationMessage('Substrate already installed');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
-            vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
+            await vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
             this.statusBar.hide();
             return;
         }
 
         this.statusBar.hide();
-        vscode.window.showInformationMessage('Successfully installed Substrate');
+        await vscode.window.showInformationMessage('Successfully installed Substrate');
     }
 
     async setupDevAccounts() {
@@ -155,7 +155,7 @@ export class Substrate {
         const rawdata = fs.readFileSync(path);
         const pair: KeyringPair$Json = JSON.parse(rawdata.toString());
         if (this.isAccountExists(pair.meta['name'])) {
-            vscode.window.showWarningMessage('Account with same key already exists. Account not added');
+            await vscode.window.showWarningMessage('Account with same key already exists. Account not added');
             return;
         }
         const accounts = this.getAcccounts();

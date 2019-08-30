@@ -7,7 +7,7 @@ export class StartNodeCommand extends BaseCommand {
     async run() {
         // const folders = vscode.workspace.workspaceFolders;
         // if (!folders) {
-        //     vscode.window.showErrorMessage("Can not get workspace folder path");
+        //     await vscode.window.showErrorMessage("Can not get workspace folder path");
         //     return;
         // }
         // const path: string = folders[0].uri.fsPath;

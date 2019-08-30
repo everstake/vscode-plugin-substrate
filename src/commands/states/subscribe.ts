@@ -17,7 +17,7 @@ export class SubscribeCommand extends BaseCommand {
     async run(item: StateItem) {
         const state = this.substrate.getState(item.module, item.label);
         if (state === undefined) {
-        	vscode.window.showInformationMessage('Can not get chain state');
+        	await vscode.window.showInformationMessage('Can not get chain state');
             return;
         }
         let argument = undefined;
@@ -42,7 +42,7 @@ export class SubscribeCommand extends BaseCommand {
                 panel.webview.html = this.getWebviewContent(item.module, item.label, data.isEmpty ? 'empty' : data);
             });
         } catch (err) {
-            vscode.window.showErrorMessage('Failed with error:', err);
+            await vscode.window.showErrorMessage('Failed with error:', err);
         }
     }
 
@@ -50,7 +50,7 @@ export class SubscribeCommand extends BaseCommand {
         if (state.type === 'AccountId') {
             const placeholder = 'ex. Alice';
             let items = [] as vscode.QuickPickItem[];
-            const accounts = this.context.globalState.get<KeyringPair[]>('accounts');
+            const accounts = this.substrate.getAcccounts();
             if (!accounts) {
                 throw new Error('No accounts');
             }

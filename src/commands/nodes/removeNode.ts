@@ -15,7 +15,7 @@ export class RemoveNodeCommand extends BaseCommand {
             await this.context.globalState.update('connected-node', undefined);
         }
 
-        vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
+        await vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
         await vscode.commands.executeCommand('nodes.refresh');
     }
 }

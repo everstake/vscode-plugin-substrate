@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-// import * as path from 'path';
+import * as path from 'path';
 import { SubmittableExtrinsic } from '@polkadot/api/SubmittableExtrinsic';
 import { KeyringPair } from '@polkadot/keyring/types';
 
@@ -12,7 +12,6 @@ type ExtrinsicArgs = {
     account: KeyringPair,
     args: string[],
     params: ExtrinsicParameter[],
-    success: boolean,
 };
 
 const loadScript = (context: vscode.ExtensionContext, path: string) => {
@@ -30,33 +29,35 @@ export class RunExtrinsicCommand extends BaseCommand {
     async run(item: Extrinsic) {
         const extrinsic = this.substrate.getExtrinsic(item.module, item.label);
         if (extrinsic === undefined) {
-        	vscode.window.showInformationMessage('Not connected to node');
+        	await vscode.window.showInformationMessage('Not connected to node');
             return;
         }
         const extObj = extrinsic.toJSON();
         const params: ExtrinsicParameter[] = extObj.args;
 
         this.options.totalSteps = params.length + 2;
-        const state = { params, args: [], success: false } as Partial<ExtrinsicArgs>;
+        const state = { params, args: [] } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
+            await vscode.window.showInformationMessage('Extrinsic execution canceled');
             return;
         }
         const value = state as ExtrinsicArgs;
-        if (!value.success) {
+        if (value.account.isLocked) {
+            await vscode.window.showErrorMessage('Canceling extrinsic execution due to KeyringPair decode error');
             return;
         }
 
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                vscode.window.showErrorMessage('Not connected to a node');
+                await vscode.window.showErrorMessage('Not connected to a node');
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
             const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...value.args);
 
-            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
+            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(async ({ events = [], status }) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     console.log('Completed at block hash', finalized);
@@ -73,14 +74,14 @@ export class RunExtrinsicCommand extends BaseCommand {
 
                     if (error !== '') {
                         // Todo: Get error
-                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error:${error}`);
+                        await vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
                     } else {
-                        vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
+                        await vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
                     }
                 }
             });
         } catch (err) {
-            vscode.window.showInformationMessage('Error on extrinsic:', err.message);
+            await vscode.window.showErrorMessage(`Error on extrinsic: ${err.message}`);
         }
         // const panel = vscode.window.createWebviewPanel(
         //     'extrinsicResult',
@@ -137,6 +138,10 @@ export class RunExtrinsicCommand extends BaseCommand {
             placeholder: 'ex. Some data',
             value: (typeof val === 'string') ? val : '',
             validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
+            buttons: [{
+                iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'add.svg'),
+                tooltip: 'Open from file'
+            }],
         });
         state.args!.push(result);
     }
@@ -159,7 +164,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         });
         const account = accounts.find(account => result.label === account.meta['name']);
         if (!account) {
-            vscode.window.showErrorMessage('Account not found');
+            await vscode.window.showErrorMessage('Account not found');
             return;
         }
         return (input: MultiStepInput) => this.addPassword(input, state, account);
@@ -179,9 +184,8 @@ export class RunExtrinsicCommand extends BaseCommand {
         try {
             state.account = keyring.addFromJson(account);
             state.account.decodePkcs8(password);
-            state.success = true;
         } catch (err) {
-            vscode.window.showErrorMessage(`Failed to decode account: ${err.message}`);
+            await vscode.window.showErrorMessage(`Failed to decode account: ${err.message}`);
         }
     }
 

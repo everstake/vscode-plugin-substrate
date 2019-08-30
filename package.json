@@ -99,6 +99,10 @@
         "title": "Change name..."
       },
       {
+        "command": "accounts.copyAddress",
+        "title": "Copy address..."
+      },
+      {
         "command": "states.subscribe",
         "title": "Subscribe for data"
       }
@@ -163,6 +167,11 @@
           "group": "section-1"
         },
         {
+          "command": "accounts.copyAddress",
+          "when": "view == accounts && viewItem == account",
+          "group": "section-1"
+        },
+        {
           "command": "states.subscribe",
           "when": "view == states && viewItem == state",
           "group": "section-1"
@@ -189,6 +198,7 @@
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
     "@types/vscode": "^1.37.0",
+    "@types/copy-paste": "^1.1.30",
     "css-loader": "^3.2.0",
     "glob": "^7.1.4",
     "less": "^3.10.3",
@@ -219,6 +229,7 @@
     "@polkadot/ui-keyring": "^0.42.0-beta.35",
     "@polkadot/ui-signer": "^0.34.0-beta.119",
     "await-to-js": "^2.1.1",
+    "copy-paste": "^1.3.0",
     "module-alias": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
