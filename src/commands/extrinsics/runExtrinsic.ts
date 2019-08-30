@@ -181,7 +181,7 @@ export class RunExtrinsicCommand extends BaseCommand {
             state.account.decodePkcs8(password);
             state.success = true;
         } catch (err) {
-            vscode.window.showErrorMessage('Failed to decode account:', err);
+            vscode.window.showErrorMessage(`Failed to decode account: ${err.message}`);
         }
     }
 
