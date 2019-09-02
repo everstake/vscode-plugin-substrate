@@ -10,7 +10,7 @@ import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
     account: KeyringPair,
-    args: string[],
+    args: { [key: string]: string },
     params: ExtrinsicParameter[],
 };
 
@@ -36,7 +36,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         const params: ExtrinsicParameter[] = extObj.args;
 
         this.options.totalSteps = params.length + 2;
-        const state = { params, args: [] } as Partial<ExtrinsicArgs>;
+        const state = { params, args: {} } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
             await vscode.window.showInformationMessage('Extrinsic execution canceled');
@@ -55,7 +55,7 @@ export class RunExtrinsicCommand extends BaseCommand {
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
-            const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...value.args);
+            const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...Object.values(value.args));
 
             await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(async ({ events = [], status }) => {
                 if (status.isFinalized) {
@@ -117,7 +117,7 @@ export class RunExtrinsicCommand extends BaseCommand {
                 placeholder: 'ex. Alice',
                 items,
             });
-            state.args!.push(result.description);
+            state.args![param.name as any] = result.description;
         } else {
             await this.textInput(input, state, param);
         }
@@ -144,7 +144,8 @@ export class RunExtrinsicCommand extends BaseCommand {
                 tooltip: 'Open from file',
             }],
         });
-        state.args!.push(result);
+        // Result of click on new button here
+        state.args![param.name as any] = result;
     }
 
     async addAccount(input: MultiStepInput, state: Partial<ExtrinsicArgs>) {
