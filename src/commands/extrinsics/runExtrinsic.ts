@@ -83,17 +83,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         } catch (err) {
             await vscode.window.showErrorMessage(`Error on extrinsic: ${err.message}`);
         }
-        // const panel = vscode.window.createWebviewPanel(
-        //     'extrinsicResult',
-        //     'Extrinsic Result',
-        //     vscode.ViewColumn.One,
-        //     {
-        //         enableScripts: true,
-        //         retainContextWhenHidden: true,
-        //         localResourceRoots: [ vscode.Uri.file(path.join(this.context.extensionPath, 'out')) ]
-        //     },
-        // );
-        // panel.webview.html = this.getWebviewContent(result);
     }
 
     async nextArgument(input: MultiStepInput, state: Partial<ExtrinsicArgs>) {

@@ -1,5 +1,6 @@
 import 'module-alias/register';
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 import * as commands from '@/commands';
 import * as treeViews from '@/trees';
@@ -20,6 +21,21 @@ export async function activate(context: vscode.ExtensionContext) {
 			const treeCom = (commands as any)[treeName];
 			for (const name of Object.keys(treeCom)) {
 				const com = new treeCom[name](context, trees, substrate, treeName);
+
+				// Todo: Remove. Dev only
+				if (name === 'RunExtrinsicCommand') {
+					const panel = vscode.window.createWebviewPanel(
+						'extrinsicResult',
+						'Extrinsic Result',
+						vscode.ViewColumn.One,
+						{
+							enableScripts: true,
+							retainContextWhenHidden: true,
+							localResourceRoots: [ vscode.Uri.file(path.join(context.extensionPath, 'out')) ]
+						},
+					);
+					panel.webview.html = com.getWebviewContent({ data: 'value' });
+				}
 			}
 			vscode.window.registerTreeDataProvider(treeName, treeObject);
 		}
