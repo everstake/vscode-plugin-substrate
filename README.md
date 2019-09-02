@@ -15,6 +15,13 @@ Steps:
 2) Execute command `yarn` and `yarn compile` in terminal.
 3) Press `F5`.
 
+To run webview:
+
+1) Execute command `yarn watch:views`
+2) Press `F5`
+3) Press `CMD + SHIFT + P` and type `Show webview`
+4) Make changes to webview
+
 ## Features
 
 This extension provides next features:

@@ -46,6 +46,10 @@
     },
     "commands": [
       {
+        "command": "extrinsics.showWebview",
+        "title": "Show webview"
+      },
+      {
         "command": "nodes.startNode",
         "title": "Start local node"
       },

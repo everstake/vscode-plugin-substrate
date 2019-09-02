@@ -14,11 +14,6 @@ type ExtrinsicArgs = {
     params: ExtrinsicParameter[],
 };
 
-const loadScript = (context: vscode.ExtensionContext, path: string) => {
-    const uri = vscode.Uri.file(context.asAbsolutePath(path)).with({ scheme: 'vscode-resource'}).toString();
-    return `<script src="${uri}"></script>`;
-};
-
 export class RunExtrinsicCommand extends BaseCommand {
     options = {
         title: 'Run extrinsic command',
@@ -178,31 +173,5 @@ export class RunExtrinsicCommand extends BaseCommand {
         } catch (err) {
             await vscode.window.showErrorMessage(`Failed to decode account: ${err.message}`);
         }
-    }
-
-    getWebviewContent(result: any) {
-        return `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Extrinsic result</title>
-                <script>
-                    window.data = {
-                        "some_data": "some great data"
-                    };
-                </script>
-            </head>
-            <body>
-                <div id="root"></div>
-                <div>
-                    <p>${result}</p>
-                </div>
-                ${loadScript(this.context, 'out/vendor.js')}
-                ${loadScript(this.context, 'out/extrinsic.js')}
-            </body>
-            </html>
-        `;
     }
 }

@@ -3,10 +3,11 @@ import * as React from "react";
 
 class App extends React.Component {
   public render() {
+    const data = (window as any).data;
     return (
       <div>
-        <p>Hello world!</p>
-        <p>Some data: {(window as any).data}</p>
+        <h1>Hello there!</h1>
+        <p>Some test data: {JSON.stringify(data)}</p>
         {/* <Extrinsic
           defaultValue={console.log}
           label={'submit the following extrinsic'}
