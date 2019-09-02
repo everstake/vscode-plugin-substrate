@@ -84,6 +84,10 @@
         "title": "Edit node..."
       },
       {
+        "command": "nodes.editTypes",
+        "title": "Edit types"
+      },
+      {
         "command": "extrinsics.runExtrinsic",
         "title": "Execute...",
         "icon": "assets/dark/run.svg"
@@ -133,15 +137,20 @@
         {
           "command": "nodes.startNode",
           "when": "view == nodes",
-          "group": "section-2"
+          "group": "section-1"
         },
         {
           "command": "nodes.stopNode",
           "when": "view == nodes",
-          "group": "section-2"
+          "group": "section-1"
         },
         {
           "command": "nodes.clearChainData",
+          "when": "view == nodes",
+          "group": "section-2"
+        },
+        {
+          "command": "nodes.editTypes",
           "when": "view == nodes",
           "group": "section-2"
         },

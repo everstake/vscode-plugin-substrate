@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as util from 'util';
+import * as path from 'path';
 import * as fs from 'fs';
 import to from 'await-to-js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
@@ -10,6 +11,7 @@ import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api
 
 import { NodeInfo } from '@/trees';
 import console = require('console');
+import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
 
@@ -53,7 +55,7 @@ export class Substrate {
 
     constructor(
         private statusBar: vscode.StatusBarItem,
-        private globalState: vscode.Memento,
+        private context: vscode.ExtensionContext,
     ) {}
 
     isConnected(): boolean {
@@ -106,9 +108,9 @@ export class Substrate {
     }
 
     async setupConnection() {
-        const nodes: NodeInfo[] = this.globalState.get('nodes') || [];
+        const nodes: NodeInfo[] = this.context.globalState.get('nodes') || [];
 
-        const node = this.globalState.get('connected-node');
+        const node = this.context.globalState.get('connected-node');
         const conNode = nodes.find(val => val.name === node);
         if (conNode) {
             await this.connectTo(conNode.name, conNode.endpoint);
@@ -119,14 +121,27 @@ export class Substrate {
         const defaultNode = nodes.find(val => val.name === defaultNodeName);
         if (!defaultNode) {
             nodes.push({ endpoint: defaultNodeEndpoint, name: defaultNodeName } as NodeInfo);
-            await this.globalState.update('nodes', nodes);
+            await this.context.globalState.update('nodes', nodes);
+        }
+    }
+
+    async getTypes(): Promise<RegistryTypes | undefined> {
+        const globalPath = this.context.globalStoragePath;
+        const filePath = path.join(globalPath, 'types.json');
+        try {
+            const buf = await fs.promises.readFile(filePath);
+            return JSON.parse(buf.toString());
+        } catch (err) {
+            console.log('File with types not found');
+            return;
         }
     }
 
     async connectTo(name: string, endpoint: string) {
         try {
+            const types = await this.getTypes();
             const provider = new WsProvider(endpoint);
-            const api = new ApiPromise({ provider });
+            const api = new ApiPromise({ provider, types });
             api.on('error', ConnectHandler.create(5, () => {
                 console.error("Failed to connect");
                 vscode.window.showErrorMessage('Failed to connect');
@@ -137,18 +152,16 @@ export class Substrate {
         } catch (err) {
             console.log("TCL: Substrate -> connectTo -> err", err);
         }
-        await this.globalState.update('connected-node', name);
+        await this.context.globalState.update('connected-node', name);
         await vscode.commands.executeCommand('nodes.refresh');
     }
 
-    async addTypes() {}
-
     async updateAccounts(accounts: AccountKey[]) {
-        await this.globalState.update('accounts', JSON.stringify(accounts));
+        await this.context.globalState.update('accounts', JSON.stringify(accounts));
     }
 
     getAcccounts(): AccountKey[] {
-        const accounts = this.globalState.get<string>('accounts');
+        const accounts = this.context.globalState.get<string>('accounts');
         if (!accounts) {
             return [];
         }
@@ -209,7 +222,7 @@ export class Substrate {
         }
         const accounts = this.getAcccounts();
         accounts.push(pair);
-        this.globalState.update('accounts', JSON.stringify(accounts));
+        this.context.globalState.update('accounts', JSON.stringify(accounts));
     }
 
     getExtrinsicModules(): string[] {
@@ -281,6 +294,6 @@ export class Substrate {
     }
 
     getNodes() {
-        return this.globalState.get<NodeInfo[]>('nodes') || [];
+        return this.context.globalState.get<NodeInfo[]>('nodes') || [];
     }
 }

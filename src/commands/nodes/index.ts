@@ -1,4 +1,5 @@
 export * from './addNode';
+export * from './editTypes';
 export * from './clearChainData';
 export * from './connectToNode';
 export * from './removeNode';

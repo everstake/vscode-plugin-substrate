@@ -7,7 +7,7 @@ import { Substrate } from '@/substrate';
 
 export async function activate(context: vscode.ExtensionContext) {
  	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
-	const substrate = new Substrate(statusBar, context.globalState);
+	const substrate = new Substrate(statusBar, context);
 
 	const trees = new Map();
 	trees.set('nodes', new treeViews.NodesTreeView(context, substrate));
