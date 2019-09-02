@@ -1,5 +1,5 @@
-import * as React from "react";
-// import { Extrinsic } from '@polkadot/react-components';
+import React from "react";
+import Identicon from '@polkadot/react-identicon';
 
 class App extends React.Component {
   public render() {
@@ -8,12 +8,11 @@ class App extends React.Component {
       <div>
         <h1>Hello there!</h1>
         <p>Some test data: {JSON.stringify(data)}</p>
-        {/* <Extrinsic
-          defaultValue={console.log}
-          label={'submit the following extrinsic'}
-          onChange={console.log}
-          onEnter={console.log}
-        /> */}
+        <Identicon
+          value="5GeJHN5EcUGPoa5pUwYkXjymoDVN1DJHsBR4UGX4XRAwK1Ez"
+          size={32}
+          theme="polkadot"
+        />
       </div>
     );
   }
