@@ -80,6 +80,10 @@
         "title": "Refresh"
       },
       {
+        "command": "nodes.editNode",
+        "title": "Edit node..."
+      },
+      {
         "command": "extrinsics.runExtrinsic",
         "title": "Execute...",
         "icon": "assets/dark/run.svg"
@@ -165,6 +169,11 @@
         },
         {
           "command": "nodes.removeNode",
+          "when": "view == nodes && viewItem == node",
+          "group": "section-1"
+        },
+        {
+          "command": "nodes.editNode",
           "when": "view == nodes && viewItem == node",
           "group": "section-1"
         },
