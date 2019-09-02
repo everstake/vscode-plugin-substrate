@@ -4,16 +4,48 @@ import * as fs from 'fs';
 import to from 'await-to-js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
-import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
+import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 
-import { NodeInfo, ExtrinsicParameter } from '@/trees';
+import { NodeInfo } from '@/trees';
 import console = require('console');
 
 const exec = util.promisify(cp_exec);
 
 export type AccountKey = KeyringPair$Json;
+
+class ConnectHandler {
+    public totalRetries = 0;
+    public maxRetries = 0;
+    public callback = () => {};
+
+    constructor(maxRetries: number, callback: () => void) {
+        this.maxRetries = maxRetries;
+        this.callback = callback;
+    }
+
+    static create(maxRetries: number, callback: () => void): (...args: any[]) => any {
+        const conhan = new ConnectHandler(maxRetries, callback);
+        return conhan.handle.bind(conhan);
+    }
+
+    handle(...args: any[]): any {
+        for (const arg of args) {
+            const msg = (arg as Error).message;
+            if (msg && msg.indexOf('Unable to find plain type for') !== -1) {
+                vscode.window.showErrorMessage('You have to specify types at extrinsic panel to connect');
+                this.callback();
+                return;
+            }
+        }
+        if (this.totalRetries >= this.maxRetries) {
+            this.callback();
+            return;
+        }
+        this.totalRetries++;
+    }
+}
 
 export class Substrate {
     private api?: ApiPromise;
@@ -93,10 +125,15 @@ export class Substrate {
 
     async connectTo(name: string, endpoint: string) {
         try {
-            // Todo: Fix errors on failed connection
             // Todo: Fix error on determine types
             const provider = new WsProvider(endpoint);
-            const api = await ApiPromise.create({ provider });
+            const api = new ApiPromise({ provider });
+            api.on('error', ConnectHandler.create(5, () => {
+                console.error("Failed to connect");
+                vscode.window.showErrorMessage('Failed to connect');
+                api.disconnect();
+            }));
+            await api.isReady;
             this.api = api;
         } catch (err) {
             console.log("TCL: Substrate -> connectTo -> err", err);
