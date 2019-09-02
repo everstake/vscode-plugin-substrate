@@ -28,7 +28,7 @@ export class CreateAccountCommand extends BaseCommand {
         }
         const value = state as AccountInfo;
 
-        await this.substrate.createKeyringPair(value.key, value.name, value.type);
+        await this.substrate.createKeyringPairWithPassword(value.key, value.name, value.type, value.password);
 
         const tree = this.trees.get('accounts') as AccountsTreeView;
         tree.refresh();

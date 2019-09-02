@@ -4,3 +4,4 @@ export * from './renameAccount';
 export * from './importAccount';
 export * from './copyAddress';
 export * from './createAccount';
+export * from './exportAccount';

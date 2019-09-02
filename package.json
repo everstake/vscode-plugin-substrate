@@ -107,6 +107,14 @@
         "title": "Copy address..."
       },
       {
+        "command": "accounts.createAccount",
+        "title": "Create account"
+      },
+      {
+        "command": "accounts.exportAccount",
+        "title": "Export account..."
+      },
+      {
         "command": "states.subscribe",
         "title": "Subscribe for data"
       }
@@ -142,6 +150,11 @@
           "command": "accounts.importAccount",
           "when": "view == accounts",
           "group": "section-1"
+        },
+        {
+          "command": "accounts.createAccount",
+          "when": "view == accounts",
+          "group": "section-1"
         }
       ],
       "view/item/context": [
@@ -162,6 +175,11 @@
         },
         {
           "command": "accounts.removeAccount",
+          "when": "view == accounts && viewItem == account",
+          "group": "section-1"
+        },
+        {
+          "command": "accounts.exportAccount",
           "when": "view == accounts && viewItem == account",
           "group": "section-1"
         },

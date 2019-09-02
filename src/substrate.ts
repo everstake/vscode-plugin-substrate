@@ -125,7 +125,6 @@ export class Substrate {
 
     async connectTo(name: string, endpoint: string) {
         try {
-            // Todo: Fix error on determine types
             const provider = new WsProvider(endpoint);
             const api = new ApiPromise({ provider });
             api.on('error', ConnectHandler.create(5, () => {
@@ -141,6 +140,8 @@ export class Substrate {
         await this.globalState.update('connected-node', name);
         await vscode.commands.executeCommand('nodes.refresh');
     }
+
+    async addTypes() {}
 
     async updateAccounts(accounts: AccountKey[]) {
         await this.globalState.update('accounts', JSON.stringify(accounts));
@@ -174,6 +175,17 @@ export class Substrate {
         const pair = this.keyring.addFromUri(key, { name }, type);
         const accounts = this.getAcccounts();
         accounts.push(pair.toJson());
+        await this.updateAccounts(accounts);
+    }
+
+    async createKeyringPairWithPassword(key: string, name: string, type: 'ed25519' | 'sr25519', pass: string) {
+        const pair = this.keyring.addFromUri(key, { name }, type);
+
+        const json = pair.toJson(pass);
+        json.meta.whenEdited = Date.now();
+
+        const accounts = this.getAcccounts();
+        accounts.push(json);
         await this.updateAccounts(accounts);
     }
 
