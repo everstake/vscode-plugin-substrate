@@ -1,22 +1,52 @@
-import * as React from "react";
-// import { Extrinsic } from '@polkadot/react-components';
+import React, { useState, useEffect } from 'react';
+import { Spin, Row } from 'antd';
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import keyring from '@polkadot/ui-keyring';
+import NodeInfo from "./components/NodeInfo";
+import Balances from "./components/Balances";
 
-class App extends React.Component {
-  public render() {
-    const data = (window as any).data;
-    return (
-      <div>
-        <h1>Hello there!</h1>
-        <p>Some test data: {JSON.stringify(data)}</p>
-        {/* <Extrinsic
-          defaultValue={console.log}
-          label={'submit the following extrinsic'}
-          onChange={console.log}
-          onEnter={console.log}
-        /> */}
-      </div>
-    );
+const WS_PROVIDER = 'wss://poc3-rpc.polkadot.io/';
+
+
+const App = () => {
+  const [api, setApi] = useState();
+  const [apiReady, setApiReady] = useState();
+
+  useEffect(() => {
+    createApi();
+
+    keyring.loadAll({
+      isDevelopment: true
+    });
+  }, []);
+
+  const createApi = async () => {
+    const provider = new WsProvider(WS_PROVIDER);
+    try {
+      const api = await ApiPromise.create({provider});
+      setApi(api);
+      setApiReady(true);
+    } catch (e) {
+      console.error(e)
+    }
   }
-}
+
+  if(!apiReady){
+    return <Spin tip="Connecting to the blockchain" />;
+  }
+
+  return (
+    <div style={{ color: "#fff" }}>
+      <NodeInfo
+        api={api}
+      />
+       <Balances
+        keyring={keyring}
+        api={api}
+      />
+      Connected
+    </div>
+  );
+};
 
 export default App;
