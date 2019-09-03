@@ -5,7 +5,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
-import { MultiStepInput, MultiStepInputCallback } from '@/common';
+import { MultiStepInput, MultiStepInputCallback, InputFlowAction } from '@/common';
 import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
@@ -52,7 +52,7 @@ export class RunExtrinsicCommand extends BaseCommand {
             const nonce = await con.query.system.accountNonce(value.account.address);
             const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...Object.values(value.args));
 
-            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(async ({ events = [], status }) => {
+            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     console.log('Completed at block hash', finalized);
@@ -69,9 +69,9 @@ export class RunExtrinsicCommand extends BaseCommand {
 
                     if (error !== '') {
                         // Todo: Get error
-                        await vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
                     } else {
-                        await vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
+                        vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
                     }
                 }
             });
@@ -136,7 +136,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         let items = [] as vscode.QuickPickItem[];
         const accounts = this.substrate.getAcccounts();
         if (!accounts) {
-            throw new Error('No accounts');
+            throw Error('No accounts');
         }
         items = accounts.map(account => ({
             label: account.meta['name'],
@@ -150,28 +150,32 @@ export class RunExtrinsicCommand extends BaseCommand {
         });
         const account = accounts.find(account => result.label === account.meta['name']);
         if (!account) {
-            await vscode.window.showErrorMessage('Account not found');
-            return;
+            throw Error('Account not found');
         }
         return (input: MultiStepInput) => this.addPassword(input, state, account);
     }
 
     async addPassword(input: MultiStepInput, state: Partial<ExtrinsicArgs>, account: AccountKey) {
         const keyring = this.substrate.getKeyring();
-        const password = await input.showInputBox({
+        state.account = keyring.addFromJson(account);
+        await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'Account password',
             placeholder: 'ex. StrongPassword',
             password: true,
             value: '',
-            validate: async (_) => '',
+            validate: async (pass) => {
+                try {
+                    state.account!.decodePkcs8(pass);
+                    if (state.account!.isLocked) {
+                        return 'Failed to decode account';
+                    }
+                    return '';
+                } catch (err) {
+                    return `Failed to decode account: ${err.message}`;
+                }
+            },
         });
-        try {
-            state.account = keyring.addFromJson(account);
-            state.account.decodePkcs8(password);
-        } catch (err) {
-            await vscode.window.showErrorMessage(`Failed to decode account: ${err.message}`);
-        }
     }
 }

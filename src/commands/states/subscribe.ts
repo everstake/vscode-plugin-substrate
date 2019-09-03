@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
 import { StateItem } from "@/trees";
@@ -25,7 +24,6 @@ export class SubscribeCommand extends BaseCommand {
         if (type) {
             const map = type['Map'];
             if (map !== undefined) {
-                console.log('Chain state type:', map);
                 const state = { type: map.key } as Partial<ChainResult>;
                 const result = await MultiStepInput.run(input => this.addArgument(input, state));
                 if (!result) {
@@ -100,7 +98,7 @@ export class SubscribeCommand extends BaseCommand {
             </head>
             <body>
                 <h1>Result of "${chain}" in module "${module}"</h1>
-                <textarea>${data}</textarea>
+                <textarea readonly>${data}</textarea>
             </body>
             </html>
         `;
