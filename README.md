@@ -1,6 +1,6 @@
-# Plugin for Polkadot
+<h2 align="center">VSCode Plugin for Substrate</h2>
 
-This plugin provides convinient development environment for Parity Substrate framework.
+This plugin provides a convenient development environment for Parity Substrate framework.
 
 ## How to run
 
@@ -15,22 +15,22 @@ Steps:
 2) Execute command `yarn` and `yarn compile` in terminal.
 3) Press `F5`.
 
-To run webview:
+## To start webview development:
 
-1) Execute command `yarn watch:views`
-2) Press `F5`
-3) Press `CMD + SHIFT + P` and type `Show webview`
-4) Make changes to webview
+1) Execute the command `yarn watch:views`.
+2) Press `F5`.
+3) Press `CMD + SHIFT + P` and type `Show webview`.
+4) Make changes to webview in `./src/views`.
 
 ## Features
 
-This extension provides next features:
+This extension provides the next features:
 
-1) Start/Stop local node
-2) Clear chain data
-3) Manage accounts
-4) Execute extrinsics
-5) Subscribe for chain state changes
+1) Start/Stop a local node.
+2) Clear chain data.
+3) Manage accounts.
+4) Execute extrinsics.
+5) Subscribe for chain state changes.
 
 ## How to use
 
@@ -38,32 +38,36 @@ Navigate to `Substrate` plugin in sidebar menu.
 
 ### Nodes:
 
-You need to be in directory with substrate project to execute next commands:
+You need to be in a directory with substrate project to execute the next commands:
 
 1) Start: In 'Nodes' section click at the '...' and 'Start local node'.
 2) Stop: You need to have an open terminal with node running - in 'Nodes' section click at the '...' and 'Stop local node'.
 3) Clear: In 'Nodes' section click at the '...' and 'Clear chain data'.
 
-To remove or connect to a node you don't need to be in directory with substrate.
+To run next commands you don't need to be in a directory with substrate project.
 
-1) Connect: In 'Nodes' section RMB click at node and then click 'Connect...'.
-2) Remove: In 'Nodes' section RMB click at node and then click 'Remove...'.
+1) Connect: In 'Nodes' section RMB click at the node and then click 'Connect...'.
+2) Remove: In 'Nodes' section RMB click at the node and then click 'Remove...'.
+3) Edit node: In 'Nodes' section RMB click at the node and then click 'Edit node...'.
+4) Edit types: In 'Nodes' section click at the '...' and 'Edit types' - type your custom substrate storage types.
 
 ### Accounts:
 
-1) Add: In 'Accounts' section click at the '+' and type account name, account encryption type, Menemonic/Seed/Uri.
-2) Change name: In 'Accounts' section RMB click at account and then click 'Change name...'.
-3) Remove: In 'Accounts' section RMB click at account and then click 'Remove...'.
-4) Import: In 'Accounts' section click at the '...' and choose file with exported account.
+1) Add: In 'Accounts' section click at the '+' and type account name, account encryption type, Mnemonic/Seed/Uri.
+2) Change name: In 'Accounts' section RMB click at the account and then click 'Change name...'.
+3) Remove: In 'Accounts' section RMB click at the account and then click 'Remove...'.
+4) Import: In 'Accounts' section click at the '...' and choose a file with exported account.
+5) Export: In 'Accounts' section RMB click at the account and then click 'Export account...'.
+6) Copy address: In 'Accounts' section RMB click at the account and then click 'Copy address...'.
 
 ### Extrinsics:
 
-1) Run extrinsic: In 'Extrinsics' section click at module and choose extrinsic to execute.
+1) Run extrinsic: In 'Extrinsics' section click at the module and choose extrinsic to execute.
 Then type all arguments and account which will sign extrinsic.
 
 ### Chain state:
 
-1) Substrate: In 'Chain state' section click at module and choose state to subscribe and type key argument (if it's map).
+1) Substrate: In 'Chain state' section click at the module and choose a state to subscribe and type key argument (if it's a map).
 
 ## License
 

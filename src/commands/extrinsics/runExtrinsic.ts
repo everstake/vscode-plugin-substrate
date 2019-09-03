@@ -115,6 +115,10 @@ export class RunExtrinsicCommand extends BaseCommand {
     async textInput(input: MultiStepInput, state: Partial<ExtrinsicArgs>, param: ExtrinsicParameter) {
         const prompt = `${param.name}: ${param.type}`;
         const val = state.args![input.CurrentStepNumber - 1];
+        const button = {
+            iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'file.svg'),
+            tooltip: 'Open from file',
+        };
         const result = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
@@ -122,11 +126,7 @@ export class RunExtrinsicCommand extends BaseCommand {
             placeholder: 'ex. Some data',
             value: (typeof val === 'string') ? val : '',
             validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
-            // Todo: Add button logic
-            buttons: [{
-                iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'file.svg'),
-                tooltip: 'Open from file',
-            }],
+            buttons: [button],
         });
         // Result of click on new button here
         state.args![param.name as any] = result;
