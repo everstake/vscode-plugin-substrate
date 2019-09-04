@@ -257,15 +257,15 @@
     "webpack-cli": "^3.3.7"
   },
   "dependencies": {
-    "@polkadot/api": "^0.90.1",
-    "@polkadot/api-contract": "^0.90.1",
+    "@polkadot/api": "^0.91.0-beta.19",
+    "@polkadot/api-contract": "^0.91.0-beta.19",
     "@polkadot/app-contracts": "^0.34.0-beta.141",
     "@polkadot/keyring": "^1.2.0-beta.1",
     "@polkadot/react-components": "^0.34.0-beta.141",
     "@polkadot/react-identicon": "^0.42.0-beta.35",
     "@polkadot/react-params": "^0.34.0-beta.141",
     "@polkadot/react-signer": "^0.34.0-beta.141",
-    "@polkadot/types": "^0.90.1",
+    "@polkadot/types": "^0.91.0-beta.19",
     "@polkadot/ui-keyring": "^0.42.0-beta.35",
     "@polkadot/ui-signer": "^0.34.0-beta.119",
     "@polkadot/util-crypto": "^1.1.1",

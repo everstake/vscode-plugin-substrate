@@ -8,6 +8,7 @@ import { Keyring } from '@polkadot/keyring';
 import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
+import { EventRecord } from '@polkadot/types/interfaces';
 import { KeypairType } from '@polkadot/util-crypto/types';
 
 import { NodeInfo } from '@/trees';
@@ -135,11 +136,19 @@ export class Substrate {
         }
     }
 
-    async connectTo(name: string, endpoint: string) {
+    async connectTo(name: string, endpoint: string, additionalTypes?: RegistryTypes) {
         try {
             const types = await this.getTypes();
             const provider = new WsProvider(endpoint);
-            const api = new ApiPromise({ provider, types });
+            const api = new ApiPromise({ provider, types: {
+                // Todo: Remove after 0.91.1. Comment it if custom node
+                BlockNumber: 'u64',
+                Index: 'u64',
+                EventRecord: 'EventRecord0to76',
+                ValidatorPrefs: 'ValidatorPrefs0to145',
+                ...types,
+                ...additionalTypes,
+            }});
             api.on('error', ConnectHandler.create(5, () => {
                 console.error("Failed to connect");
                 vscode.window.showErrorMessage('Failed to connect');
@@ -151,7 +160,7 @@ export class Substrate {
             this.api = api;
             this.isConnected = true;
         } catch (err) {
-            console.log("TCL: Substrate -> connectTo -> err", err);
+            console.error('Error on connect:', err);
         }
         await this.context.globalState.update('connected-node', name);
         await vscode.commands.executeCommand('nodes.refresh');

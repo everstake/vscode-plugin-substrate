@@ -9,7 +9,7 @@ export class ClearChainDataCommand extends BaseCommand {
         if (!terminal) {
             terminal = vscode.window.createTerminal(terminalName);
         }
-        terminal.sendText('cargo run -- purge-chain --dev');
+        terminal.sendText('cargo run -- purge-chain --dev -y');
         terminal.show(false);
     }
 }

@@ -13,6 +13,11 @@ export class RemoveNodeCommand extends BaseCommand {
         const connectedNode = this.context.globalState.get('connected-node');
         if (connectedNode === item.label) {
             await this.context.globalState.update('connected-node', undefined);
+            this.substrate.isConnected = false;
+            const conn = this.substrate.getConnection();
+            if (conn) {
+                conn.disconnect();
+            }
         }
 
         await vscode.commands.executeCommand('nodes.refresh');

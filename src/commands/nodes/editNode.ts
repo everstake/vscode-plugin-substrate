@@ -54,7 +54,8 @@ export class EditNodeCommand extends BaseCommand {
                 if (!value || !value.trim()) {
                     return 'Name is required';
                 }
-                if (this.nodeNames.find(val => val === value) !== undefined) {
+                const nodeName = this.nodeNames.find(val => val === value);
+                if (nodeName !== undefined && nodeName !== state.name) {
                     return 'Node with same name already exists';
                 }
                 return '';

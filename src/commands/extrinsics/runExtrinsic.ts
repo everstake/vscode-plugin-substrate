@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { SubmittableExtrinsic } from '@polkadot/api/SubmittableExtrinsic';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
-import { MultiStepInput, MultiStepInputCallback, InputFlowAction } from '@/common';
+import { MultiStepInput, MultiStepInputCallback } from '@/common';
 import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
@@ -50,21 +49,21 @@ export class RunExtrinsicCommand extends BaseCommand {
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
-            const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...Object.values(value.args));
+            const unsignedTransaction = extrinsic(...Object.values(value.args));
 
             // Todo: Subscribe on `Unable to decode storage system.events` error
             con.on('error', (args) => {
                 console.log("TCL: RunExtrinsicCommand -> run -> args", args);
             });
 
-            await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }) => {
+            await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     console.log('Completed at block hash', finalized);
 
                     console.log('Events:');
                     let error: string = '';
-                    events.forEach(({ phase, event: { data, method, section } }) => {
+                    events.forEach(({ phase, event: { data, method, section } }: any) => {
                         const res = `\t ${phase.toString()} : ${section}.${method} ${data.toString()}`;
                         if (res.indexOf('Failed') !== -1) {
                             error += res;
