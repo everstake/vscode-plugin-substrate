@@ -24,7 +24,7 @@ export class RunExtrinsicCommand extends BaseCommand {
     async run(item: Extrinsic) {
         const extrinsic = this.substrate.getExtrinsic(item.module, item.label);
         if (extrinsic === undefined) {
-        	await vscode.window.showInformationMessage('Not connected to node');
+        	vscode.window.showInformationMessage('Not connected to node');
             return;
         }
         const extObj = extrinsic.toJSON();
@@ -34,25 +34,30 @@ export class RunExtrinsicCommand extends BaseCommand {
         const state = { params, args: {} } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
-            await vscode.window.showInformationMessage('Extrinsic execution canceled');
+            vscode.window.showInformationMessage('Extrinsic execution canceled');
             return;
         }
         const value = state as ExtrinsicArgs;
         if (value.account.isLocked) {
-            await vscode.window.showErrorMessage('Canceling extrinsic execution due to KeyringPair decode error');
+            vscode.window.showErrorMessage('Canceling extrinsic execution due to KeyringPair decode error');
             return;
         }
 
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                await vscode.window.showErrorMessage('Not connected to a node');
+                vscode.window.showErrorMessage('Not connected to a node');
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
             const unsignedTransaction: SubmittableExtrinsic<'promise'> = extrinsic(...Object.values(value.args));
 
-            await unsignedTransaction.sign(value.account, { nonce: nonce.toString() }).send(({ events = [], status }) => {
+            // Todo: Subscribe on `Unable to decode storage system.events` error
+            con.on('error', (args) => {
+                console.log("TCL: RunExtrinsicCommand -> run -> args", args);
+            });
+
+            await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     console.log('Completed at block hash', finalized);
@@ -76,7 +81,7 @@ export class RunExtrinsicCommand extends BaseCommand {
                 }
             });
         } catch (err) {
-            await vscode.window.showErrorMessage(`Error on extrinsic: ${err.message}`);
+            vscode.window.showErrorMessage(`Error on extrinsic: ${err.message}`);
         }
     }
 

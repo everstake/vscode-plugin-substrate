@@ -16,7 +16,7 @@ export class SubscribeCommand extends BaseCommand {
     async run(item: StateItem) {
         const state = this.substrate.getState(item.module, item.label);
         if (state === undefined) {
-        	await vscode.window.showInformationMessage('Can not get chain state');
+        	vscode.window.showInformationMessage('Can not get chain state');
             return;
         }
         let argument = undefined;
@@ -40,7 +40,7 @@ export class SubscribeCommand extends BaseCommand {
                 panel.webview.html = this.getWebviewContent(item.module, item.label, data.isEmpty ? 'empty' : data);
             });
         } catch (err) {
-            await vscode.window.showErrorMessage('Failed with error:', err);
+            vscode.window.showErrorMessage('Failed with error:', err);
         }
     }
 

@@ -23,7 +23,7 @@ export class EditNodeCommand extends BaseCommand {
         });
         if (index === -1) {
             console.log('Node not found');
-            await vscode.window.showInformationMessage('Node not found');
+            vscode.window.showInformationMessage('Node not found');
             return;
         }
 
@@ -32,7 +32,7 @@ export class EditNodeCommand extends BaseCommand {
         if (!result) {
             // Todo: Move to logger
             console.log('Node wasn\'t changed');
-            await vscode.window.showInformationMessage('Node wasn\'t changed');
+            vscode.window.showInformationMessage('Node wasn\'t changed');
             return;
         }
 

@@ -21,7 +21,7 @@ export class EditTypesCommand extends BaseCommand {
             await fs.promises.writeFile(filePath, '{}\n', 'utf8');
             const tmp = this.openTypes(filePath).catch(async () => {
                 console.log('Failed to open types');
-                await vscode.window.showErrorMessage('Failed to open types');
+                vscode.window.showErrorMessage('Failed to open types');
             });
             await tmp;
         }
@@ -29,7 +29,7 @@ export class EditTypesCommand extends BaseCommand {
 
     async openTypes(path: string) {
         const doc = await vscode.workspace.openTextDocument(path);
-        /*const editor = */await vscode.window.showTextDocument(doc);
+        /*const editor = */vscode.window.showTextDocument(doc);
 
         // Todo: Add checks for types
         // const registry = getTypeRegistry();

@@ -2,12 +2,14 @@
 
 This plugin provides a convenient development environment for Parity Substrate framework.
 
-## How to run
+## Prerequisites
 
 To start using this extension - install it from [marketplace](). To run this extension you need following pre-requirements:
 
 1) Visual Studio Code v1.37.0+
 2) Yarn v1.13.0+
+
+## How to run
 
 Steps:
 
@@ -68,6 +70,10 @@ Then type all arguments and account which will sign extrinsic.
 ### Chain state:
 
 1) Substrate: In 'Chain state' section click at the module and choose a state to subscribe and type key argument (if it's a map).
+
+## Plugin 
+
+
 
 ## License
 

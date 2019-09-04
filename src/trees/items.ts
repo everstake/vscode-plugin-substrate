@@ -45,6 +45,7 @@ export class NodeItem extends vscode.TreeItem {
 	constructor(
 		public readonly label: string,
 		public readonly description: string,
+		public readonly isActive: boolean,
 		public readonly isConnected: boolean,
 		public readonly command?: vscode.Command,
 	) {
@@ -56,10 +57,10 @@ export class NodeItem extends vscode.TreeItem {
 	}
 
 	get iconPath(): { dark: string, light: string } {
-		if (this.isConnected) {
+		if (this.isActive) {
 			return {
-				dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'connect.svg'),
-				light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'connect.svg'),
+				dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
+				light: path.join(__filename, '..', '..', '..', 'assets', 'light', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
 			};
 		}
 		return {

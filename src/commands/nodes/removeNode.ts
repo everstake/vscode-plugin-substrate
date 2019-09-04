@@ -16,6 +16,6 @@ export class RemoveNodeCommand extends BaseCommand {
         }
 
         await vscode.commands.executeCommand('nodes.refresh');
-        await vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
+        vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
     }
 }

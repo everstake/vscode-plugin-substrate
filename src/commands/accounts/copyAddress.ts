@@ -7,6 +7,6 @@ import { AccountItem } from "@/trees";
 export class CopyAddressCommand extends BaseCommand {
     async run(item: AccountItem) {
         cp.copy(item.description);
-        await vscode.window.showInformationMessage('Adddress copied to clipboard');
+        vscode.window.showInformationMessage('Adddress copied to clipboard');
     }
 }

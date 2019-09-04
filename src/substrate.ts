@@ -8,6 +8,7 @@ import { Keyring } from '@polkadot/keyring';
 import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
+import { KeypairType } from '@polkadot/util-crypto/types';
 
 import { NodeInfo } from '@/trees';
 import console = require('console');
@@ -50,6 +51,7 @@ class ConnectHandler {
 }
 
 export class Substrate {
+    public isConnected = false;
     private api?: ApiPromise;
     private keyring = new Keyring({ type: 'sr25519' });
 
@@ -57,10 +59,6 @@ export class Substrate {
         private statusBar: vscode.StatusBarItem,
         private context: vscode.ExtensionContext,
     ) {}
-
-    isConnected(): boolean {
-        return this.api ? true : false;
-    }
 
     getConnection(): ApiPromise | undefined {
         return this.api;
@@ -79,27 +77,27 @@ export class Substrate {
 
         let [err, data] = await to(exec('which curl'));
         if (err) {
-            await vscode.window.showErrorMessage('You have to install "curl" first');
+            vscode.window.showErrorMessage('You have to install "curl" first');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
-            await vscode.window.showInformationMessage('Substrate already installed');
+            vscode.window.showInformationMessage('Substrate already installed');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
-            await vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
+            vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
             this.statusBar.hide();
             return;
         }
 
         this.statusBar.hide();
-        await vscode.window.showInformationMessage('Successfully installed Substrate');
+        vscode.window.showInformationMessage('Successfully installed Substrate');
     }
 
     async setupDevAccounts() {
@@ -146,9 +144,12 @@ export class Substrate {
                 console.error("Failed to connect");
                 vscode.window.showErrorMessage('Failed to connect');
                 api.disconnect();
+                this.isConnected = false;
+                vscode.commands.executeCommand('nodes.refresh');
             }));
             await api.isReady;
             this.api = api;
+            this.isConnected = true;
         } catch (err) {
             console.log("TCL: Substrate -> connectTo -> err", err);
         }
@@ -184,14 +185,14 @@ export class Substrate {
         return true;
     }
 
-    async createKeyringPair(key: string, name: string, type: 'ed25519' | 'sr25519') {
+    async createKeyringPair(key: string, name: string, type: KeypairType) {
         const pair = this.keyring.addFromUri(key, { name }, type);
         const accounts = this.getAcccounts();
         accounts.push(pair.toJson());
         await this.updateAccounts(accounts);
     }
 
-    async createKeyringPairWithPassword(key: string, name: string, type: 'ed25519' | 'sr25519', pass: string) {
+    async createKeyringPairWithPassword(key: string, name: string, type: KeypairType, pass: string) {
         const pair = this.keyring.addFromUri(key, { name }, type);
 
         const json = pair.toJson(pass);
@@ -217,7 +218,7 @@ export class Substrate {
         const rawdata = fs.readFileSync(path);
         const pair: KeyringPair$Json = JSON.parse(rawdata.toString());
         if (this.isAccountExists(pair.meta['name'])) {
-            await vscode.window.showWarningMessage('Account with same key already exists. Account not added');
+            vscode.window.showWarningMessage('Account with same key already exists. Account not added');
             return;
         }
         const accounts = this.getAcccounts();
@@ -226,7 +227,7 @@ export class Substrate {
     }
 
     getExtrinsicModules(): string[] {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return [];
         }
         const keys = Object.keys(this.api!.tx).filter((value) => {
@@ -240,7 +241,7 @@ export class Substrate {
     }
 
     getExtrinsics(key: string): [string[], string[]] {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return [[], []];
         }
         const keys = Object.keys(this.api!.tx[key]);
@@ -249,14 +250,14 @@ export class Substrate {
     }
 
     getExtrinsic(module: string, key: string): SubmittableExtrinsicFunction<'promise'> | undefined {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return;
         }
         return this.api!.tx[module][key];
     }
 
     getStateModules(): string[] {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return [];
         }
         const keys = Object.keys(this.api!.query).filter((value) => {
@@ -270,7 +271,7 @@ export class Substrate {
     }
 
     getStates(key: string): [string[], string[]] {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return [[], []];
         }
         const mod = this.api!.query[key];
@@ -287,7 +288,7 @@ export class Substrate {
     }
 
     getState(module: string, key: string): StorageEntryPromise | undefined {
-        if (!this.isConnected()) {
+        if (!this.isConnected) {
             return;
         }
         return this.api!.query[module][key];
