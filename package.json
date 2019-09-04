@@ -99,7 +99,7 @@
       },
       {
         "command": "accounts.importAccount",
-        "title": "Import account from file"
+        "title": "Import account"
       },
       {
         "command": "accounts.removeAccount",
@@ -167,6 +167,11 @@
         {
           "command": "accounts.createAccount",
           "when": "view == accounts",
+          "group": "section-1"
+        },
+        {
+          "command": "extrinsics.showWebview",
+          "when": "view == extrinsics",
           "group": "section-1"
         }
       ],
