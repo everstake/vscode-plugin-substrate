@@ -17,7 +17,7 @@ Steps:
 2) Execute command `yarn` and `yarn compile` in terminal.
 3) Press `F5`.
 
-## To start webview development:
+## To start webview development
 
 1) Execute the command `yarn watch:views`.
 2) Press `F5`.
@@ -30,7 +30,7 @@ All features and it's functionality you can find in [tutorial file](TUTORIAL.md)
 
 ## Plugin dependencies
 
-Next plugins will be automatically installed with this plugin:
+Next plugins will be automatically installed with this plugin (if not installed):
 
 * [Rust language support](https://github.com/rust-lang/rls-vscode)
 
