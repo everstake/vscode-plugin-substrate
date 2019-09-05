@@ -18,7 +18,7 @@ type AccountInfo = {
 export class CreateAccountCommand extends BaseCommand {
     options = {
         title: 'Create account',
-        totalSteps: 4,
+        totalSteps: 5,
         ignoreFocusOut: true,
     };
 

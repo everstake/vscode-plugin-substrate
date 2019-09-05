@@ -36,6 +36,11 @@ export class EditNodeCommand extends BaseCommand {
             return;
         }
 
+        const connectedNode = this.context.globalState.get('connected-node');
+        if (connectedNode === item.label) {
+            await this.context.globalState.update('connected-node', state.name);
+        }
+
         nodes[index] = state as NodeInfo;
         await this.context.globalState.update('nodes', nodes);
 
