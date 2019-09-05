@@ -4,7 +4,7 @@ This plugin provides a convenient development environment for Parity Substrate f
 
 ## Prerequisites
 
-To start using this extension - install it from [marketplace](). To run this extension you need following pre-requirements:
+To start using this extension - install it from [marketplace](https://marketplace.visualstudio.com/items?itemName=enfipy.plugin-polkadot). To run this extension you need following pre-requirements:
 
 1) Visual Studio Code v1.37.0+
 2) Yarn v1.13.0+

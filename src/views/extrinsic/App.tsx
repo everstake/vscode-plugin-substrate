@@ -3,7 +3,7 @@ import { Spin, Row } from 'antd';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import keyring from '@polkadot/ui-keyring';
 import NodeInfo from "./components/NodeInfo";
-import Balances from "./components/Balances";
+// import Balances from "./components/Balances";
 
 const WS_PROVIDER = 'wss://poc3-rpc.polkadot.io/';
 
@@ -27,7 +27,7 @@ const App = () => {
       setApi(api);
       setApiReady(true);
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -40,10 +40,10 @@ const App = () => {
       <NodeInfo
         api={api}
       />
-       <Balances
+      {/* <Balances
         keyring={keyring}
         api={api}
-      />
+      /> */}
       Connected
     </div>
   );

@@ -3,6 +3,12 @@
   "displayName": "plugin-polkadot",
   "description": "Plugin for Parity Substrate",
   "version": "0.0.1",
+  "publisher": "enfipy",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/everstake/VSCode-Atom-Plugin.git"
+  },
   "engines": {
     "vscode": "^1.37.0"
   },
@@ -234,7 +240,8 @@
     "watch:views": "webpack --watch --mode development",
     "pretest": "yarn run compile",
     "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
+    "package": "vsce package --yarn",
+    "publish": "vsce publish --yarn"
   },
   "devDependencies": {
     "@types/copy-paste": "^1.1.30",
