@@ -1,0 +1,24 @@
+version: "3.7"
+
+networks:
+  dev:
+
+volumes:
+  plugin-volume:
+    driver_opts:
+      type: "nfs"
+      o: "bind"
+      device: ${PWD}/node_modules
+
+services:
+
+  plugin:
+    build:
+      dockerfile: ./docker/dev.Dockerfile
+      context: .
+    volumes:
+      - ./out:/usr/src/app/out
+      - plugin-volume:/usr/src/app/node_modules
+      - ./src:/usr/src/app/src
+    networks:
+      - dev

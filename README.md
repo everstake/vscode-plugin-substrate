@@ -14,7 +14,7 @@ To start using this extension - install it from [marketplace](https://marketplac
 Steps:
 
 1) Clone project and open it in VSCode.
-2) Execute command `yarn` and `yarn compile` in terminal.
+2) Execute command `yarn install` and `yarn compile` in terminal.
 3) Press `F5`.
 
 ## To start webview development
