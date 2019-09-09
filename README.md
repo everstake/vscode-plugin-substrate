@@ -33,6 +33,7 @@ All features and it's functionality you can find in [the tutorial file](TUTORIAL
 Next plugins will be automatically installed with this plugin (if not installed):
 
 * [Rust language support](https://github.com/rust-lang/rls-vscode)
+* [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
 ## License
 

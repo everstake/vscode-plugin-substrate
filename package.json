@@ -2,7 +2,7 @@
   "name": "plugin-polkadot",
   "displayName": "plugin-polkadot",
   "description": "Plugin for Parity Substrate",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {
@@ -94,6 +94,14 @@
         "title": "Edit types"
       },
       {
+        "command": "nodes.configureDevcontainer",
+        "title": "Configure devcontainer"
+      },
+      {
+        "command": "nodes.reopenInContainer",
+        "title": "Reopen in container"
+      },
+      {
         "command": "extrinsics.runExtrinsic",
         "title": "Execute...",
         "icon": "assets/dark/run.svg"
@@ -159,6 +167,16 @@
           "command": "nodes.editTypes",
           "when": "view == nodes",
           "group": "section-2"
+        },
+        {
+          "command": "nodes.configureDevcontainer",
+          "when": "view == nodes",
+          "group": "section-3"
+        },
+        {
+          "command": "nodes.reopenInContainer",
+          "when": "view == nodes",
+          "group": "section-3"
         },
         {
           "command": "accounts.addAccount",
@@ -292,6 +310,7 @@
     "@": "out"
   },
   "extensionDependencies": [
+    "ms-vscode-remote.remote-containers",
     "rust-lang.rust"
   ]
 }

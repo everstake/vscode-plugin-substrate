@@ -91,7 +91,7 @@ export class Substrate {
 
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
-            vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
+            vscode.window.showInformationMessage(`Substrate failed to install. Error: ${err}`);
             this.statusBar.hide();
             return;
         }
