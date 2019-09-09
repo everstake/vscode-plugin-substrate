@@ -8,7 +8,6 @@ import { Keyring } from '@polkadot/keyring';
 import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
-import { EventRecord } from '@polkadot/types/interfaces';
 import { KeypairType } from '@polkadot/util-crypto/types';
 
 import { NodeInfo } from '@/trees';
@@ -78,14 +77,14 @@ export class Substrate {
 
         let [err, data] = await to(exec('which curl'));
         if (err) {
-            vscode.window.showErrorMessage('You have to install "curl" first');
+            console.log('You have to install "curl" first');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
-            vscode.window.showInformationMessage('Substrate already installed');
+            console.log('Substrate already installed');
             this.statusBar.hide();
             return;
         }
