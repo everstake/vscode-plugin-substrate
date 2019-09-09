@@ -20,11 +20,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			const treeCom = (commands as any)[treeName];
 			for (const name of Object.keys(treeCom)) {
 				const com = new treeCom[name](context, trees, substrate, treeName);
-
-				// Todo: Remove. Dev only
-				// if (name === 'RunExtrinsicCommand') {
-				// 	com.showWebview();
-				// }
 			}
 			vscode.window.registerTreeDataProvider(treeName, treeObject);
 		}
