@@ -1,8 +1,8 @@
 {
   "name": "plugin-polkadot",
-  "displayName": "plugin-polkadot",
+  "displayName": "Substrate plugin",
   "description": "Plugin for Parity Substrate",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {
@@ -261,10 +261,8 @@
     }
   },
   "scripts": {
-    "production": "npm-run-all production:*",
-    "production:extension": "webpack --config webpack.config.extension.js --mode production",
-    "production:views": "webpack --config webpack.config.views.js --mode production",
     "compile": "npm-run-all compile:*",
+    "compile:clear": "rm -rf out/**",
     "compile:extension": "webpack --config webpack.config.extension.js --mode development",
     "compile:views": "webpack --config webpack.config.views.js --mode development",
     "watch": "npm-run-all -p watch:*",
@@ -272,9 +270,8 @@
     "watch:views": "webpack --config webpack.config.views.js --mode development --watch",
     "pretest": "yarn run compile",
     "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "yarn run production",
-    "package": "vsce package --yarn",
-    "publish": "vsce publish --yarn"
+    "vscode:prepublish": "yarn run compile",
+    "package": "vsce package --yarn"
   },
   "devDependencies": {
     "@types/copy-paste": "^1.1.30",

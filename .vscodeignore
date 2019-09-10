@@ -3,4 +3,6 @@ node_modules
 src/**
 package-json.lock
 tsconfig.json
-webpack.config.js
+webpack.config.**.js
+.gitignore
+tslint.json
