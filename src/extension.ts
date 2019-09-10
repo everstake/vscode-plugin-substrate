@@ -1,4 +1,4 @@
-import 'module-alias/register';
+// import 'module-alias/register';
 import * as vscode from 'vscode';
 
 import * as commands from '@/commands';

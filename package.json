@@ -2,18 +2,31 @@
   "name": "plugin-polkadot",
   "displayName": "plugin-polkadot",
   "description": "Plugin for Parity Substrate",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/everstake/VSCode-Atom-Plugin.git"
   },
+  "bugs": {
+    "url": "https://github.com/everstake/VSCode-Atom-Plugin/issues"
+  },
+  "homepage": "https://github.com/everstake/VSCode-Atom-Plugin/blob/master/README.md",
+  "icon": "assets/icon-circle.png",
   "engines": {
     "vscode": "^1.37.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "substrate",
+    "rust",
+    "polkadot",
+    "parity",
+    "web3",
+    "everstake"
   ],
   "activationEvents": [
     "onLanguage:rust",

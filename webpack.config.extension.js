@@ -4,7 +4,7 @@ const config = {
   target: 'node',
   entry: './src/extension.ts',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'out'),
     filename: 'extension.js',
     libraryTarget: 'commonjs2',
     devtoolModuleFilenameTemplate: '../[resource-path]'
@@ -15,8 +15,11 @@ const config = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
+    modules: [
+      'node_modules'
+    ],
     alias: {
-      '@/*': path.resolve(__dirname, 'src'),
+      '@': path.resolve('src'),
     }
   },
   module: {
