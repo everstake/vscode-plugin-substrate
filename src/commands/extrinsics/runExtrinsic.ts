@@ -1,10 +1,9 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
-import { MultiStepInput, MultiStepInputCallback } from '@/common';
+import { assets, MultiStepInput, MultiStepInputCallback } from '@/common';
 import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
@@ -120,7 +119,7 @@ export class RunExtrinsicCommand extends BaseCommand {
         const prompt = `${param.name}: ${param.type}`;
         const val = state.args![input.CurrentStepNumber - 1];
         const button = {
-            iconPath: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'file.svg'),
+            iconPath: assets(this.context, 'dark', 'file.svg'),
             tooltip: 'Open from file',
         };
         const result = await input.showInputBox({

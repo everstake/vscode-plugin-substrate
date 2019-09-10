@@ -1,18 +1,22 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
+import { assets } from '@/common';
 
 export class Module extends vscode.TreeItem {
 	contextValue = 'module';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'module.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'module.svg'),
-	};
 
 	constructor(
+		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly command?: vscode.Command,
 	) {
 		super(label, vscode.TreeItemCollapsibleState.Collapsed);
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'module.svg'),
+			light: assets(this.context, 'light', 'module.svg'),
+		};
 	}
 }
 
@@ -20,12 +24,9 @@ export type ExtrinsicParameter = { type: string, name: string };
 
 export class Extrinsic extends vscode.TreeItem {
 	contextValue = 'extrinsic';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'extrinsic.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'extrinsic.svg'),
-	};
 
 	constructor(
+		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly module: string,
 		public readonly description: string,
@@ -37,12 +38,20 @@ export class Extrinsic extends vscode.TreeItem {
 	get tooltip(): string {
 		return this.description;
 	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'extrinsic.svg'),
+			light: assets(this.context, 'light', 'extrinsic.svg'),
+		};
+	}
 }
 
 export class NodeItem extends vscode.TreeItem {
 	contextValue = 'node';
 
 	constructor(
+		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly description: string,
 		public readonly isActive: boolean,
@@ -59,25 +68,22 @@ export class NodeItem extends vscode.TreeItem {
 	get iconPath(): { dark: string, light: string } {
 		if (this.isActive) {
 			return {
-				dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
-				light: path.join(__filename, '..', '..', '..', 'assets', 'light', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
+				dark: assets(this.context, 'dark', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
+				light: assets(this.context, 'light', this.isConnected ? 'connected.svg' : 'disconnected.svg'),
 			};
 		}
 		return {
-			dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'node.svg'),
-			light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'node.svg'),
+			dark: assets(this.context, 'dark', 'node.svg'),
+			light: assets(this.context, 'light', 'node.svg'),
 		};
 	}
 }
 
 export class StateItem extends vscode.TreeItem {
 	contextValue = 'state';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'download.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'download.svg'),
-	};
 
 	constructor(
+		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly module: string,
 		public readonly description: string,
@@ -89,16 +95,20 @@ export class StateItem extends vscode.TreeItem {
 	get tooltip(): string {
 		return this.description;
 	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'download.svg'),
+			light: assets(this.context, 'light', 'download.svg'),
+		};
+	}
 }
 
 export class AccountItem extends vscode.TreeItem {
 	contextValue = 'account';
-	iconPath = {
-		dark: path.join(__filename, '..', '..', '..', 'assets', 'dark', 'account.svg'),
-		light: path.join(__filename, '..', '..', '..', 'assets', 'light', 'account.svg'),
-	};
 
 	constructor(
+		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly description: string,
 		public readonly command?: vscode.Command,
@@ -108,5 +118,12 @@ export class AccountItem extends vscode.TreeItem {
 
 	get tooltip(): string {
 		return this.description;
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'account.svg'),
+			light: assets(this.context, 'light', 'account.svg'),
+		};
 	}
 }

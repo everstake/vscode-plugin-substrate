@@ -31,9 +31,9 @@ export class StatesTreeView extends TreeView<Item> {
 
 		return labels.map((value, index) => {
 			if (isModule) {
-				return new Module(value);
+				return new Module(this.context, value);
 			}
-			return new StateItem(value, element!.label, descriptions[index]);
+			return new StateItem(this.context, value, element!.label, descriptions[index]);
 		});
 	}
 }

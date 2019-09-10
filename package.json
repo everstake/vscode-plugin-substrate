@@ -22,7 +22,6 @@
   ],
   "keywords": [
     "substrate",
-    "rust",
     "polkadot",
     "parity",
     "web3",
@@ -32,7 +31,7 @@
     "onLanguage:rust",
     "*"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/extension",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -262,15 +261,18 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
+    "production": "npm-run-all production:*",
+    "production:extension": "webpack --config webpack.config.extension.js --mode production",
+    "production:views": "webpack --config webpack.config.views.js --mode production",
     "compile": "npm-run-all compile:*",
-    "compile:extension": "webpack --config webpack.config.extension.js --mode production",
-    "compile:views": "webpack --config webpack.config.views.js --mode production",
+    "compile:extension": "webpack --config webpack.config.extension.js --mode development",
+    "compile:views": "webpack --config webpack.config.views.js --mode development",
     "watch": "npm-run-all -p watch:*",
-    "watch:extension": "webpack --config webpack.config.extension.js --mode development --watch",
-    "watch:views": "webpack --config webpack.config.views.js --watch --mode development",
+    "watch:extension": "tsc --watch -p ./",
+    "watch:views": "webpack --config webpack.config.views.js --mode development --watch",
     "pretest": "yarn run compile",
     "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "yarn run production",
     "package": "vsce package --yarn",
     "publish": "vsce publish --yarn"
   },
@@ -278,6 +280,7 @@
     "@types/copy-paste": "^1.1.30",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
+    "@types/module-alias": "^2.0.0",
     "@types/node": "^10.12.21",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
@@ -290,6 +293,7 @@
     "npm-run-all": "^4.1.5",
     "react-scripts": "^3.1.1",
     "style-loader": "^1.0.0",
+    "svg-inline-loader": "^0.8.0",
     "ts-import-plugin": "^1.6.1",
     "ts-loader": "^6.0.4",
     "tslint": "^5.12.1",
@@ -318,9 +322,6 @@
     "module-alias": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
-  },
-  "_moduleAliases": {
-    "@": "out"
   },
   "extensionDependencies": [
     "ms-vscode-remote.remote-containers",

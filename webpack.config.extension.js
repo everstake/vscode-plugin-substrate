@@ -19,7 +19,7 @@ const config = {
       'node_modules'
     ],
     alias: {
-      '@': path.resolve('src'),
+      '@': path.resolve('src')
     }
   },
   module: {

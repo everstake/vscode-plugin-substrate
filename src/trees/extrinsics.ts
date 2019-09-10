@@ -29,6 +29,10 @@ export class ExtrinsicsTreeView extends TreeView<Item> {
 			isModule = true;
 		}
 
-		return labels.map((value, index) => isModule ? new Module(value) : new Extrinsic(value, element!.label, descriptions[index]));
+		return labels.map(
+			(value, index) => isModule ?
+				new Module(this.context, value) :
+				new Extrinsic(this.context, value, element!.label, descriptions[index])
+		);
 	}
 }
