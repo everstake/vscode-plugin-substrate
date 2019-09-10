@@ -7,3 +7,5 @@ export * from './editNode';
 export * from './startNode';
 export * from './stopNode';
 export * from './refresh';
+export * from './configureDevcontainer';
+export * from './reopenInContainer';

@@ -1,4 +1,10 @@
-import 'module-alias/register';
+// Only for debugging. With webpack - it's not necessary.
+// Todo: Fix errors with determine folder
+// import { addAliases } from 'module-alias';
+// addAliases({
+// 	"@": "out",
+// });
+
 import * as vscode from 'vscode';
 
 import * as commands from '@/commands';
@@ -20,16 +26,11 @@ export async function activate(context: vscode.ExtensionContext) {
 			const treeCom = (commands as any)[treeName];
 			for (const name of Object.keys(treeCom)) {
 				const com = new treeCom[name](context, trees, substrate, treeName);
-
-				// Todo: Remove. Dev only
-				// if (name === 'RunExtrinsicCommand') {
-				// 	com.showWebview();
-				// }
 			}
 			vscode.window.registerTreeDataProvider(treeName, treeObject);
 		}
 	} catch(err) {
-		console.log('Failed to register command');
+		console.log(`Failed to register command: ${err}`);
 	}
 
 	await substrate.setup();

@@ -11,7 +11,6 @@ import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api
 import { KeypairType } from '@polkadot/util-crypto/types';
 
 import { NodeInfo } from '@/trees';
-import console = require('console');
 import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
@@ -84,14 +83,14 @@ export class Substrate {
 
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
-            console.log('Substrate already installed');
+            console.log('Substrate already installed. Skipping installation');
             this.statusBar.hide();
             return;
         }
 
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
-            vscode.window.showInformationMessage('Substrate failed to install. Error: ', err);
+            vscode.window.showInformationMessage(`Substrate failed to install. Error: ${err}`);
             this.statusBar.hide();
             return;
         }

@@ -40,7 +40,7 @@ export class SubscribeCommand extends BaseCommand {
                 panel.webview.html = this.getWebviewContent(item.module, item.label, data.isEmpty ? 'empty' : data);
             });
         } catch (err) {
-            vscode.window.showErrorMessage('Failed with error:', err);
+            vscode.window.showErrorMessage(`Failed with error: ${err}`);
         }
     }
 

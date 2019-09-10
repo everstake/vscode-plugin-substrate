@@ -18,6 +18,6 @@ export class AccountsTreeView extends TreeView<Item> {
 
 	getItems(element?: Item): Item[] {
 		const accounts = this.substrate.getAcccounts();
-		return accounts.map(({ meta: { name }, address }) => new AccountItem(name, address));
+		return accounts.map(({ meta: { name }, address }) => new AccountItem(this.context, name, address));
 	}
 }

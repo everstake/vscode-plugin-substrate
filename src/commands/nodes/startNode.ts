@@ -5,12 +5,6 @@ import { NodesTreeView } from "@/trees";
 
 export class StartNodeCommand extends BaseCommand {
     async run() {
-        // const folders = vscode.workspace.workspaceFolders;
-        // if (!folders) {
-        //     vscode.window.showErrorMessage("Can not get workspace folder path");
-        //     return;
-        // }
-        // const path: string = folders[0].uri.fsPath;
         const terminalName = 'Substrate node';
         let terminal = vscode.window.terminals.find(val => val.name === terminalName);
         if (!terminal) {

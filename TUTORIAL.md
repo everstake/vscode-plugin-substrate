@@ -19,6 +19,8 @@ This extension provides the next features:
    6. [Connect to node](#connect-to-node)
    7. [Edit node](#edit-node)
    8. [Remove node](#remove-node)
+   9. [Configure devcontainer](#configure-devcontainer)
+   10. [Reopen in container](#reopen-in-container)
 2. __Manage accounts__
    1. [Add account](#add-account)
    2. [Create account](#create-account)
@@ -88,6 +90,18 @@ That command will edit the node's name and url.
 <sup> [#panel-item](#tags)
 
 That command will remove the node from plugin storage.
+
+### Configure devcontainer
+
+<sup> [#panel-item](#tags)
+
+That command will create .devcontainer directory in the root of the workspace and add `devcontainer.json` with `Dockerfile` files for the container development.
+
+### Reopen in container
+
+<sup> [#panel-item](#tags)
+
+That command will call `Reopen in Container` command from `Remote-Containers` extension.
 
 ### Add account
 

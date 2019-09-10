@@ -24,7 +24,7 @@ export class NodesTreeView extends TreeView<Item> {
 		const isConnected = this.substrate.isConnected;
 		return nodes.map(({ name, endpoint }) => {
 			const isActive = node === name;
-			return new NodeItem(name, endpoint, isActive, isActive && isConnected);
+			return new NodeItem(this.context, name, endpoint, isActive, isActive && isConnected);
 		});
 	}
 }
