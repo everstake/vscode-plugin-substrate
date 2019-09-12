@@ -2,7 +2,7 @@
   "name": "plugin-polkadot",
   "displayName": "Substrate plugin",
   "description": "Plugin for Parity Substrate",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {
@@ -32,6 +32,9 @@
     "*"
   ],
   "main": "./out/extension",
+  "extensionDependencies": [
+    "rust-lang.rust"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -74,6 +77,10 @@
       {
         "command": "nodes.stopNode",
         "title": "Stop local node"
+      },
+      {
+        "command": "nodes.disconnectFromNode",
+        "title": "Disconnect from node"
       },
       {
         "command": "nodes.clearChainData",
@@ -169,6 +176,11 @@
           "command": "nodes.stopNode",
           "when": "view == nodes",
           "group": "section-1"
+        },
+        {
+          "command": "nodes.disconnectFromNode",
+          "when": "view == nodes",
+          "group": "section-2"
         },
         {
           "command": "nodes.clearChainData",
@@ -319,9 +331,5 @@
     "module-alias": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
-  },
-  "extensionDependencies": [
-    "ms-vscode-remote.remote-containers",
-    "rust-lang.rust"
-  ]
+  }
 }

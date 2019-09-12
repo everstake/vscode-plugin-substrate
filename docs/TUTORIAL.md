@@ -21,6 +21,7 @@ This extension provides the next features:
    8. [Remove node](#remove-node)
    9. [Configure devcontainer](#configure-devcontainer)
    10. [Reopen in container](#reopen-in-container)
+   11. [Disconnect from node](#disconnect-from-node)
 2. __Manage accounts__
    1. [Add account](#add-account)
    2. [Create account](#create-account)
@@ -43,123 +44,87 @@ Click on the icon of `Substrate` in the sidebar menu. If there no icon - RMB cli
 
 List of all available commands of the plugin:
 
-### Add node
-
-<sup> [#panel-navigation](#tags)
+### Add node <sup><sub> [#panel-navigation](#tags)
 
 That command will add node to the plugin storage, after that you will be able to connect to it and execute extrinsics and subscribe for data.
 
-### Start local node
-
-<sup> [#directory-with-substrate-project](#tags)
+### Start local node <sup><sub> [#directory-with-substrate-project](#tags)
 
 That command will run script in VSCode terminal (in local directory) to start local node in development mode.
 
-### Stop local node
-
-<sup> [#directory-with-substrate-project](#tags)
+### Stop local node <sup><sub> [#directory-with-substrate-project](#tags)
 
 That command will stop local node and close the VSCode terminal. If no running terminal with node - it will ignore the execution of the command.
 
-### Clear chain data
-
-<sup> [#directory-with-substrate-project](#tags)
+### Clear chain data <sup><sub> [#directory-with-substrate-project](#tags)
 
 That command will run the `purge-chain` script in VSCode terminal. If no running terminal - it will ignore the execution of the command.
 
-### Edit types
-
-<sup> [#panel-navigation](#tags)
+### Edit types <sup><sub> [#panel-navigation](#tags)
 
 That command will open for editing the file with global `@polkadot/api` types. For now, it's the single available opportunity to connect to nodes with custom types.
 
-### Connect to node
-
-<sup> [#panel-item](#tags)
+### Connect to node <sup><sub> [#panel-item](#tags)
 
 That command will connect to the node with provided url and show all available extrinsics and storage states.
 
-### Edit node
-
-<sup> [#panel-item](#tags)
+### Edit node <sup><sub> [#panel-item](#tags)
 
 That command will edit the node's name and url.
 
-### Remove node
-
-<sup> [#panel-item](#tags)
+### Remove node <sup><sub> [#panel-item](#tags)
 
 That command will remove the node from plugin storage.
 
-### Configure devcontainer
-
-<sup> [#panel-item](#tags)
+### Configure devcontainer <sup><sub> [#panel-navigation](#tags)
 
 That command will create .devcontainer directory in the root of the workspace and add `devcontainer.json` with `Dockerfile` files for the container development.
 
-### Reopen in container
-
-<sup> [#panel-item](#tags)
+### Reopen in container <sup><sub> [#panel-navigation](#tags)
 
 That command will call `Reopen in Container` command from `Remote-Containers` extension.
 
-### Add account
+### Disconnect from node <sup><sub> [#panel-navigation](#tags)
 
-<sup> [#panel-navigation](#tags)
+That command will disconnect from the node.
+
+### Add account <sup><sub> [#panel-navigation](#tags)
 
 That command will add a new account with key and seed provided by user.
 
-### Create account
-
-<sup> [#panel-navigation](#tags)
+### Create account <sup><sub> [#panel-navigation](#tags)
 
 That command will create a new account. It will automatically generate raw seed or mnemonic seed (depending on user choice) and ask password to encrypt account keyring.
 
-### Import account
-
-<sup> [#panel-navigation](#tags)
+### Import account <sup><sub> [#panel-navigation](#tags)
 
 That command will import an account from `.json` file.
 
-### Change name of account
-
-<sup> [#panel-item](#tags)
+### Change name of account <sup><sub> [#panel-item](#tags)
 
 That command will change the name of the account in plugin storage. Name is stored in metadata of keyring.
 
-### Copy address of account
-
-<sup> [#panel-item](#tags)
+### Copy address of account <sup><sub> [#panel-item](#tags)
 
 That command will copy the address of the account to clipboard.
 
-### Export account
-
-<sup> [#panel-item](#tags)
+### Export account <sup><sub> [#panel-item](#tags)
 
 That command will export the account to a file according to the path entered by the user.
 
-### Remove account
-
-<sup> [#panel-item](#tags)
+### Remove account <sup><sub> [#panel-item](#tags)
 
 That command will remove the account from plugin storage
 
-### Execute extrinsic
-
-<sup> [#panel-item](#tags)
+### Execute extrinsic <sup><sub> [#panel-item](#tags)
 
 That command will execute and sign the extrinsic with provided arguments and account key.
 
-### Show webview with extrinsics
-
-<sup> [#panel-navigation](#tags)
+### Show webview with extrinsics <sup><sub> [#panel-navigation](#tags)
 
 That command will show the webview in new document with all available extrinsics of active node.
 
-### Subscribe to chain data
-
-<sup> [#panel-item](#tags)
+### Subscribe to chain data <sup><sub> [#panel-item](#tags)
 
 That command will show the webview in new document with automatically updated data from the substrate storage.
 
@@ -169,6 +134,6 @@ Here is a list of tags with their descriptions/meanings:
 
 `#directory-with-substrate-project` - you need to be in a directory with substrate project to execute the command.
 
-`#panel-navigation` - you can find the command on the panel's navigationc.
+`#panel-navigation` - you can find the command on the panel's navigation.
 
 `#panel-item` - to run the command you have to right mouse click at the item on the corresponding panel.

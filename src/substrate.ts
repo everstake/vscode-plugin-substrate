@@ -122,6 +122,15 @@ export class Substrate {
         }
     }
 
+    async disconnect() {
+        if (this.api) {
+            this.api!.disconnect();
+        }
+        this.api = undefined;
+        this.isConnected = false;
+        await this.context.globalState.update('connected-node', undefined);
+    }
+
     async getTypes(): Promise<RegistryTypes | undefined> {
         const globalPath = this.context.globalStoragePath;
         const filePath = path.join(globalPath, 'types.json');
@@ -135,6 +144,11 @@ export class Substrate {
     }
 
     async connectTo(name: string, endpoint: string, additionalTypes?: RegistryTypes) {
+        const connectedNode = this.context.globalState.get('connected-node');
+        if (connectedNode && connectedNode === 'name') {
+            console.log('Already connected');
+            return;
+        }
         try {
             const types = await this.getTypes();
             const provider = new WsProvider(endpoint);

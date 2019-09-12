@@ -2,6 +2,7 @@ export * from './addNode';
 export * from './editTypes';
 export * from './clearChainData';
 export * from './connectToNode';
+export * from './disconnectFromNode';
 export * from './removeNode';
 export * from './editNode';
 export * from './startNode';
