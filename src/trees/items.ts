@@ -127,3 +127,27 @@ export class AccountItem extends vscode.TreeItem {
 		};
 	}
 }
+
+export class ContractItem extends vscode.TreeItem {
+	contextValue = 'contract';
+
+	constructor(
+		public readonly context: vscode.ExtensionContext,
+		public readonly label: string,
+		public readonly description: string,
+		public readonly command?: vscode.Command,
+	) {
+		super(label, vscode.TreeItemCollapsibleState.None);
+	}
+
+	get tooltip(): string {
+		return this.description;
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'contract.svg'),
+			light: assets(this.context, 'light', 'contract.svg'),
+		};
+	}
+}

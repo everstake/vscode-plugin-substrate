@@ -1,10 +1,3 @@
-// Only for debugging. With webpack - it's not necessary.
-// Todo: Fix errors with determine folder
-// import { addAliases } from 'module-alias';
-// addAliases({
-// 	"@": "out",
-// });
-
 import * as vscode from 'vscode';
 
 import * as commands from '@/commands';
@@ -20,6 +13,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	trees.set('extrinsics', new treeViews.ExtrinsicsTreeView(context, substrate));
 	trees.set('states', new treeViews.StatesTreeView(context, substrate));
 	trees.set('accounts', new treeViews.AccountsTreeView(context, substrate));
+	trees.set('contracts', new treeViews.ContractsTreeView(context, substrate));
 
 	try {
 		for (const [treeName, treeObject] of trees) {

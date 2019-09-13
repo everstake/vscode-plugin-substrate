@@ -62,6 +62,10 @@
         {
           "id": "states",
           "name": "Chain state"
+        },
+        {
+          "id": "contracts",
+          "name": "Smart contracts"
         }
       ]
     },
@@ -158,6 +162,18 @@
       {
         "command": "states.subscribe",
         "title": "Subscribe for data"
+      },
+      {
+        "command": "contracts.uploadWasm",
+        "title": "Upload WASM"
+      },
+      {
+        "command": "contracts.addExistingCode",
+        "title": "Add an existing code hash"
+      },
+      {
+        "command": "contracts.addExistingContract",
+        "title": "Add an existing contract"
       }
     ],
     "menus": {
@@ -286,7 +302,6 @@
     "package": "vsce package --yarn"
   },
   "devDependencies": {
-    "@types/copy-paste": "^1.1.30",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
     "@types/module-alias": "^2.0.0",
@@ -328,7 +343,6 @@
     "antd": "^3.22.2",
     "await-to-js": "^2.1.1",
     "copy-to-clipboard": "^3.2.0",
-    "module-alias": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
   }

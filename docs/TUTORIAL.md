@@ -114,7 +114,7 @@ That command will export the account to a file according to the path entered by 
 
 ### Remove account <sup><sub> [#panel-item](#tags)
 
-That command will remove the account from plugin storage
+That command will remove the account from plugin storage.
 
 ### Execute extrinsic <sup><sub> [#panel-item](#tags)
 
