@@ -19,9 +19,11 @@ export class ContractsTreeView extends TreeView<Item> {
 	}
 
 	getItems(element?: Item): Item[] {
-		// const nodes = this.substrate.getNodes();
-		// const node = this.context.globalState.get('connected-node');
-		return [new ContractItem(this.context, 'name', 'address')];
-		// return [];
+		const contracts = this.substrate.getContracts();
+		const contractItems: Item[] = contracts.map(contract => {
+			return new ContractItem(this.context, contract.name, contract.address);
+		});
+		contractItems.push(new ContractItem(this.context, 'Base Contract', '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'));
+		return contractItems;
 	}
 }

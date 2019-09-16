@@ -10,7 +10,7 @@ import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 import { KeypairType } from '@polkadot/util-crypto/types';
 
-import { NodeInfo } from '@/trees';
+import { NodeInfo, ContractInfo } from '@/trees';
 import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
@@ -153,11 +153,6 @@ export class Substrate {
             const types = await this.getTypes();
             const provider = new WsProvider(endpoint);
             const api = new ApiPromise({ provider, types: {
-                // Todo: Remove after 0.91.1. Comment it if custom node
-                BlockNumber: 'u64',
-                Index: 'u64',
-                EventRecord: 'EventRecord0to76',
-                ValidatorPrefs: 'ValidatorPrefs0to145',
                 ...types,
                 ...additionalTypes,
             }});
@@ -317,5 +312,9 @@ export class Substrate {
 
     getNodes() {
         return this.context.globalState.get<NodeInfo[]>('nodes') || [];
+    }
+
+    getContracts(): ContractInfo[] {
+        return [];
     }
 }

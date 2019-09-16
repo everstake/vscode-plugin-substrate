@@ -1,4 +1,4 @@
-import { QuickPickItem, window, Disposable, QuickInputButton, QuickInput, QuickInputButtons } from 'vscode';
+import { QuickPickItem, OpenDialogOptions, window, Disposable, QuickInputButton, QuickInput, QuickInputButtons, Uri } from 'vscode';
 
 export type MultiStepInputCallback = (input: MultiStepInput) => Promise<any>;
 export type InputStep = (input: MultiStepInput) => Thenable<InputStep | void>;
@@ -36,6 +36,8 @@ export interface QuickPickParameters<T extends QuickPickItem> extends MultiStepI
   activeItem?: T;
   convert?: (value: T) => Promise<any>;
 }
+
+export interface OpenDialogParameters extends MultiStepInputParameters, OpenDialogOptions {}
 
 export class MultiStepInput {
 
@@ -219,5 +221,17 @@ export class MultiStepInput {
     finally {
       disposables.forEach(d => d.dispose());
     }
+  }
+
+  async showOpenDialog<P extends OpenDialogParameters>(props: P) {
+    if (this.current) {
+      this.current.dispose();
+    }
+    this.current = undefined;
+    const uri = await window.showOpenDialog(props);
+    if (!uri) {
+      return Promise.reject(props.shouldResume && await props.shouldResume() ? InputFlowAction.Back : InputFlowAction.Cancel);
+    }
+    return Promise.resolve(uri);
   }
 }
