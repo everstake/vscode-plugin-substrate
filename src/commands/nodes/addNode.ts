@@ -16,7 +16,7 @@ export class AddNodeCommand extends BaseCommand {
         const nodes: NodeInfo[] = this.context.globalState.get('nodes') || [];
         this.nodeNames = nodes.map((val) => val.name);
 
-        const state = { endpoint: 'ws://127.0.0.1:9944' } as Partial<NodeInfo>;
+        const state = { endpoint: 'ws://127.0.0.1:9944/' } as Partial<NodeInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
             console.log('Node wasn\'t added');

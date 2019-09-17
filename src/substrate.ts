@@ -10,12 +10,13 @@ import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 import { KeypairType } from '@polkadot/util-crypto/types';
 
-import { NodeInfo, ContractInfo } from '@/trees';
+import { NodeInfo, ContractCodeInfo } from '@/trees';
 import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
 
 export type AccountKey = KeyringPair$Json;
+export type ContractCodes = { [index: string]: ContractCodeInfo[] };
 
 class ConnectHandler {
     public totalRetries = 0;
@@ -72,8 +73,10 @@ export class Substrate {
         this.statusBar.show();
 
         await this.setupConnection();
-        await this.setupDevAccounts();
+        // await this.installSubstrate();
+    }
 
+    async installSubstrate() {
         let [err, data] = await to(exec('which curl'));
         if (err) {
             console.log('You have to install "curl" first');
@@ -97,11 +100,6 @@ export class Substrate {
 
         this.statusBar.hide();
         vscode.window.showInformationMessage('Successfully installed Substrate');
-    }
-
-    async setupDevAccounts() {
-        // const keyring = new Keyring({ type: 'sr25519' });
-        // const alice = keyring.addFromUri('//Alice');
     }
 
     async setupConnection() {
@@ -239,7 +237,51 @@ export class Substrate {
         }
         const accounts = this.getAcccounts();
         accounts.push(pair);
-        this.context.globalState.update('accounts', JSON.stringify(accounts));
+        await this.updateAccounts(accounts);
+    }
+
+    getContractCodes(): ContractCodes {
+        const contractsString = this.context.globalState.get<string>('contract-codes');
+        if (!contractsString) {
+            return {};
+        }
+        return JSON.parse(contractsString);
+    }
+
+    getConnectionContractCodes(): ContractCodeInfo[] {
+        const connectedNode = this.context.globalState.get<string>('connected-node');
+        if (!connectedNode) {
+            throw Error('Not connected to node');
+        }
+        const contractCodes = this.getContractCodes();
+        const nodeContractCodes = contractCodes[connectedNode] || [];
+        return nodeContractCodes;
+    }
+
+    async updateContractCodes(codes: ContractCodes) {
+        await this.context.globalState.update('contract-codes', JSON.stringify(codes));
+        await vscode.commands.executeCommand('nodes.refresh');
+    }
+
+    async updateConnectionContractCodes(codes: ContractCodeInfo[]) {
+        const connectedNode = this.context.globalState.get<string>('connected-node');
+        if (!connectedNode) {
+            throw Error('Not connected to node');
+        }
+        const contractCodes = this.getContractCodes();
+        contractCodes[connectedNode] = codes;
+        await this.updateContractCodes(contractCodes);
+    }
+
+    async saveContractCode(name: string, codeHash: string) {
+        const codes = this.getConnectionContractCodes();
+        const existingContractCode = codes.find(contractCode => contractCode.hash === codeHash);
+        if (existingContractCode && existingContractCode.name !== name) {
+            existingContractCode.name = name;
+        } else {
+            codes.push({ name, hash: codeHash });
+        }
+        await this.updateConnectionContractCodes(codes);
     }
 
     getExtrinsicModules(): string[] {
@@ -312,9 +354,5 @@ export class Substrate {
 
     getNodes() {
         return this.context.globalState.get<NodeInfo[]>('nodes') || [];
-    }
-
-    getContracts(): ContractInfo[] {
-        return [];
     }
 }

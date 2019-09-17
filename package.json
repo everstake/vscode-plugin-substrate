@@ -177,11 +177,15 @@
       },
       {
         "command": "contracts.forgetContract",
-        "title": "Forget contract"
+        "title": "Forget contract..."
       },
       {
         "command": "contracts.forgetCodeHash",
-        "title": "Forget code hash"
+        "title": "Forget code hash..."
+      },
+      {
+        "command": "contracts.copyHash",
+        "title": "Copy hash..."
       }
     ],
     "menus": {
@@ -309,14 +313,19 @@
           "group": "section-1"
         },
         {
-          "command": "contracts.forgetContract",
-          "when": "view == contracts && viewItem == contract",
+          "command": "contracts.copyHash",
+          "when": "view == contracts && viewItem == contract || viewItem == code",
           "group": "section-1"
         },
         {
-          "command": "contracts.forgetCodeHash",
+          "command": "contracts.forgetContract",
           "when": "view == contracts && viewItem == contract",
-          "group": "section-1"
+          "group": "section-2"
+        },
+        {
+          "command": "contracts.forgetCodeHash",
+          "when": "view == contracts && viewItem == code",
+          "group": "section-2"
         }
       ]
     }
@@ -374,7 +383,7 @@
     "@polkadot/util-crypto": "^1.1.1",
     "antd": "^3.22.2",
     "await-to-js": "^2.1.1",
-    "copy-to-clipboard": "^3.2.0",
+    "clipboardy": "^2.1.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
   }

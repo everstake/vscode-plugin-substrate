@@ -13,7 +13,7 @@ type UploadWasmArgs = {
     account: KeyringPair,
     compiled_contract: Uint8Array,
     code_bundle_name: string,
-    contract_abi: string,
+    contract_abi?: string,
     max_gas: number,
 };
 
@@ -33,15 +33,55 @@ export class UploadWasmCommand extends BaseCommand {
         }
         const value = state as UploadWasmArgs;
 
-        const conn = this.substrate.getConnection();
-        if (!conn) {
-            throw Error('Not connected');
-        }
-        const contractApi = conn.tx.contracts ? conn.tx['contracts'] : conn.tx['contract'];
-        const res = await contractApi.putCode(value.max_gas, value.code_bundle_name).signAndSend(value.account);
+        try {
+            const con = this.substrate.getConnection();
+            if (!con) {
+                vscode.window.showErrorMessage('Not connected to a node');
+                return;
+            }
+            const nonce = await con.query.system.accountNonce(value.account.address);
+            const contractApi = con.tx.contracts ? con.tx['contracts'] : con.tx['contract'];
+            const unsignedTransaction = contractApi.putCode(value.max_gas, value.compiled_contract);
 
-        // Todo: Subscribe for published code hash
-        console.log(res);
+            await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
+                if (status.isFinalized) {
+                    const finalized = status.asFinalized.toHex();
+                    console.log('Completed at block hash', finalized);
+
+                    console.log('Events:');
+                    let error: string = '';
+                    let resultHash: string = '';
+                    events.forEach(({ phase, event: { data, method, section } }: any) => {
+                        const res = `\t ${phase.toString()} : ${section}.${method} ${data.toString()}`;
+                        if (res.indexOf('Failed') !== -1) {
+                            error += res;
+                        }
+                        if (res.indexOf('contracts.CodeStored') !== -1) {
+                            resultHash = res.substring(
+                                res.lastIndexOf('["') + 2,
+                                res.lastIndexOf('"]'),
+                            );
+                        }
+                        console.log(res);
+                    });
+                    if (error !== '') {
+                        // Todo: Get error
+                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        return;
+                    }
+                    if (resultHash === '') {
+                        vscode.window.showErrorMessage(`Completed on block "${finalized}" but failed to get event result`);
+                        return;
+                    }
+                    vscode.window.showInformationMessage(`Completed on block ${finalized} with code hash ${resultHash}`);
+                    this.substrate.saveContractCode(value.code_bundle_name, resultHash).catch(() => {
+                        vscode.window.showErrorMessage(`Failed to store contract`);
+                    });
+                }
+            });
+        } catch (err) {
+            vscode.window.showErrorMessage(`Error on put code: ${err.message}`);
+        }
     }
 
     async addCode(input: MultiStepInput, state: Partial<UploadWasmArgs>) {
@@ -61,9 +101,9 @@ export class UploadWasmCommand extends BaseCommand {
             throw Error('Code not specified');
         }
         const codePath = uri[0].fsPath;
-        const wasm: Uint8Array = fs.readFileSync(codePath);
-        const isWasmValid = wasm.subarray(0, 4).toString() === '0,97,115,109'; // '\0asm'
-        if (isWasmValid) {
+        const wasm: Uint8Array = await fs.promises.readFile(codePath);
+        const isWasmValid = wasm.subarray(0, 4).join(',') === '0,97,115,109'; // '\0asm'
+        if (!isWasmValid) {
             throw Error('Invalid code');
         }
         state.compiled_contract = compactAddLength(wasm);
@@ -86,7 +126,7 @@ export class UploadWasmCommand extends BaseCommand {
     }
 
     async addMaxGas(input: MultiStepInput, state: Partial<UploadWasmArgs>) {
-        state.max_gas = await input.showInputBox({
+        const gas = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The maximum amount of gas that can be used by this deployment',
@@ -97,10 +137,16 @@ export class UploadWasmCommand extends BaseCommand {
                 if (!value || !value.trim()) {
                     return 'Maximum gas is required';
                 }
-                // Todo: Check is it number
+                const num = Number.parseInt(value, 10);
+                const isNan = Number.isNaN(num);
+                if (isNan) {
+                    return 'The maximum gas specified was not a number';
+                }
                 return '';
             },
+            convert: async (value) => Number.parseInt(value),
         });
+        state.max_gas = Number.parseInt(gas, 10);
         return (input: MultiStepInput) => this.addAccount(input, state);
     }
 
