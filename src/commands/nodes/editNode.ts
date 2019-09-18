@@ -41,6 +41,8 @@ export class EditNodeCommand extends BaseCommand {
             await this.context.globalState.update('connected-node', state.name);
         }
 
+        // Todo: Update contracts and contract codes
+
         nodes[index] = state as NodeInfo;
         await this.context.globalState.update('nodes', nodes);
 

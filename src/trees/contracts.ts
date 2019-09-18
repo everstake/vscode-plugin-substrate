@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 
-import { ContractItem } from '@/trees/items';
+import { ContractItem, ContractCodeItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
 import { TreeView } from '@/common';
 
-export type ContractInfo = { name: string, hash: string };
-export type ContractCodeInfo = { name: string, hash: string };
+export type ContractInfo = { name: string, address: string };
+export type ContractCodeInfo = { name: string, hash: string, contracts: ContractInfo[] };
 
-export type ContractsTreeItem = ContractItem;
-type Item = ContractItem;
+export type ContractsTreeItem = ContractItem | ContractCodeItem;
+type Item = ContractsTreeItem;
 
 export class ContractsTreeView extends TreeView<Item> {
 	constructor(private context: vscode.ExtensionContext, private substrate: Substrate) {
@@ -21,12 +21,17 @@ export class ContractsTreeView extends TreeView<Item> {
 	}
 
 	getItems(element?: Item): Item[] {
-		try {
-			const contracts = this.substrate.getConnectionContractCodes();
-			const contractItems: Item[] = contracts.map(contract => {
-				return new ContractItem(this.context, contract.name, contract.hash);
+		if (element) {
+			const items = (element as ContractCodeItem).contracts;
+			return items.map(contract => {
+				return new ContractItem(this.context, contract.name, contract.address);
 			});
-			// contractItems.push(new ContractItem(this.context, 'Base Contract', '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'));
+		}
+		try {
+			const codes = this.substrate.getConnectionContractCodes();
+			const contractItems: Item[] = codes.map(code => {
+				return new ContractCodeItem(this.context, code.name, code.hash, code.contracts);
+			});
 			return contractItems;
 		} catch (err) {
 			console.log(`Failed to get contracts and codes`);

@@ -249,6 +249,9 @@ export class Substrate {
     }
 
     getConnectionContractCodes(): ContractCodeInfo[] {
+        if (!this.isConnected) {
+            return [];
+        }
         const connectedNode = this.context.globalState.get<string>('connected-node');
         if (!connectedNode) {
             throw Error('Not connected to node');
@@ -275,12 +278,28 @@ export class Substrate {
 
     async saveContractCode(name: string, codeHash: string) {
         const codes = this.getConnectionContractCodes();
-        const existingContractCode = codes.find(contractCode => contractCode.hash === codeHash);
-        if (existingContractCode && existingContractCode.name !== name) {
+        const existingContractCode = codes.find(
+            contractCode => contractCode.hash === codeHash || contractCode.name === name
+        );
+        if (existingContractCode) {
             existingContractCode.name = name;
+            existingContractCode.hash = codeHash;
         } else {
-            codes.push({ name, hash: codeHash });
+            codes.push({ name, hash: codeHash, contracts: [] });
         }
+        await this.updateConnectionContractCodes(codes);
+    }
+
+    async saveContract(codeName: string, contractName: string, contractAddress: string) {
+        const codes = this.getConnectionContractCodes();
+        const existingContractCode = codes.find(contractCode => contractCode.name === codeName);
+        if (!existingContractCode) {
+            throw Error('Code not found');
+        }
+        existingContractCode.contracts.push({
+            name: contractName,
+            address: contractAddress,
+        });
         await this.updateConnectionContractCodes(codes);
     }
 

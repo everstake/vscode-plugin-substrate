@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { KeyringPair } from '@polkadot/keyring/types';
-import keyringUI from '@polkadot/ui-keyring';
 import { compactAddLength } from '@polkadot/util';
 
 import BaseCommand from "@/common/baseCommand";
@@ -28,7 +27,7 @@ export class UploadWasmCommand extends BaseCommand {
         const state = {} as Partial<UploadWasmArgs>;
         const argResult = await MultiStepInput.run(input => this.addCode(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Extrinsic execution canceled');
+            vscode.window.showInformationMessage('WASM upload execution canceled');
             return;
         }
         const value = state as UploadWasmArgs;

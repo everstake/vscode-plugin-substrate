@@ -186,6 +186,10 @@
       {
         "command": "contracts.copyHash",
         "title": "Copy hash..."
+      },
+      {
+        "command": "contracts.deployContract",
+        "title": "Deploy contract"
       }
     ],
     "menus": {
@@ -263,7 +267,12 @@
         {
           "command": "contracts.addExistingContract",
           "when": "view == contracts",
-          "group": "section-1"
+          "group": "section-2"
+        },
+        {
+          "command": "contracts.deployContract",
+          "when": "view == contracts",
+          "group": "section-2"
         }
       ],
       "view/item/context": [

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { assets } from '@/common';
+import { ContractInfo } from '@/trees';
 
 export class Module extends vscode.TreeItem {
 	contextValue = 'module';
@@ -124,6 +125,36 @@ export class AccountItem extends vscode.TreeItem {
 		return {
 			dark: assets(this.context, 'dark', 'account.svg'),
 			light: assets(this.context, 'light', 'account.svg'),
+		};
+	}
+}
+
+export class ContractCodeItem extends vscode.TreeItem {
+	contextValue = 'code';
+
+	constructor(
+		public readonly context: vscode.ExtensionContext,
+		public readonly label: string,
+		public readonly description: string,
+		public readonly contracts: ContractInfo[],
+		public readonly command?: vscode.Command,
+	) {
+		super(
+			label,
+			contracts.length ?
+			vscode.TreeItemCollapsibleState.Collapsed
+			: vscode.TreeItemCollapsibleState.None
+		);
+	}
+
+	get tooltip(): string {
+		return this.description;
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'code.svg'),
+			light: assets(this.context, 'light', 'code.svg'),
 		};
 	}
 }
