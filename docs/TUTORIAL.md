@@ -35,6 +35,14 @@ This extension provides the next features:
    2. [Show webview with extrinsics](#show-webview-with-extrinsics)
 4. __Subscribe to storage__
    1. [Subscribe to chain data](#subscribe-to-chain-data)
+5. __Smart contracts__
+   1. [Upload wasm](#upload-wasm)
+   2. [Deploy contract](#deploy-contract)
+   3. [Add existing code](#add-existing-code)
+   4. [Add existing contract](#add-existing-contract)
+   5. [Forget code hash](#forget-code-hash)
+   6. [Forget contract](#forget-contract)
+   7. [Copy hash](#copy-hash)
 
 ## How to use
 
@@ -127,6 +135,34 @@ That command will show the webview in new document with all available extrinsics
 ### Subscribe to chain data <sup><sub> [#panel-item](#tags)
 
 That command will show the webview in new document with automatically updated data from the substrate storage.
+
+### Upload wasm <sup><sub> [#panel-navigation](#tags)
+
+That command will upload wasm code to substrate node.
+
+### Deploy contract <sup><sub> [#panel-navigation](#tags)
+
+That command will deploy contract to substrate node.
+
+### Add existing code <sup><sub> [#panel-navigation](#tags)
+
+That command will add code without execution of extrinsic to put code.
+
+### Add existing contract <sup><sub> [#panel-navigation](#tags)
+
+That command will add contract without execution of extrinsic to deploy contract.
+
+### Forget code hash <sup><sub> [#panel-item](#tags)
+
+That command will remove the code hash from plugin storage.
+
+### Forget contract <sup><sub> [#panel-item](#tags)
+
+That command will remove the contract from plugin storage.
+
+### Copy hash <sup><sub> [#panel-item](#tags)
+
+That command will copy the hash of contract or code.
 
 ## Tags
 
