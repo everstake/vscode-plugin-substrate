@@ -26,7 +26,6 @@ export class DeployContractCommand extends BaseCommand {
     async run() {
         const state = {} as Partial<DeployContractArgs>;
         const argResult = await MultiStepInput.run(input => this.addCodeHash(input, state));
-        // const argResult = await MultiStepInput.run(input => this.addContractAbi(input, state));
         if (!argResult) {
             vscode.window.showInformationMessage('Extrinsic execution canceled');
             return;
@@ -79,7 +78,7 @@ export class DeployContractCommand extends BaseCommand {
                         return;
                     }
                     vscode.window.showInformationMessage(`Completed on block ${finalized} with code hash ${resultHash}`);
-                    this.substrate.saveContract(value.code.name, value.contract_name, resultHash).catch(() => {
+                    this.substrate.saveContract(value.contract_name, resultHash).catch(() => {
                         vscode.window.showErrorMessage(`Failed to store contract`);
                     });
                 }
@@ -154,7 +153,6 @@ export class DeployContractCommand extends BaseCommand {
         // Todo: Update total steps based on abi deploy arguments. Add inputs for every argument
 
         return (input: MultiStepInput) => this.addEndowment(input, state);
-        // return (input: MultiStepInput) => this.addAccount(input, state);
     }
 
     async addEndowment(input: MultiStepInput, state: Partial<DeployContractArgs>) {
@@ -162,7 +160,7 @@ export class DeployContractCommand extends BaseCommand {
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The allotted endowment for this contract, i.e. the amount transferred to the contract upon instantiation',
-            placeholder: 'ex. 10000',
+            placeholder: 'ex. 1000000000000000',
             ignoreFocusOut: true,
             value: (typeof state.max_gas === 'string') ? state.max_gas : '',
             validate: async (value) => {

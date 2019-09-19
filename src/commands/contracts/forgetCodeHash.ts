@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
 import BaseCommand from "@/common/baseCommand";
-import { ContractsTreeItem } from '@/trees';
+import { ContractCodeItem } from '@/trees';
 
 export class ForgetCodeHashCommand extends BaseCommand {
-    async run(item: ContractsTreeItem) {
+    async run(item: ContractCodeItem) {
         try {
             const codes = this.substrate.getConnectionContractCodes();
             for (let i = 0; i < codes.length; i++) {
@@ -18,6 +18,6 @@ export class ForgetCodeHashCommand extends BaseCommand {
             vscode.window.showWarningMessage('You are not connected to node');
         }
         await vscode.commands.executeCommand('nodes.refresh');
-        vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
+        vscode.window.showInformationMessage(`Successfully removed code hash "${item.description}"`);
     }
 }

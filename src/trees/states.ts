@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
-import { Module, StateItem } from '@/trees/items';
+import { Module, StateItem, InfoItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
 import { TreeView } from '@/common';
 
-type Item = Module | StateItem;
+type Item = Module | StateItem | InfoItem;
 
 export class StatesTreeView extends TreeView<Item> {
 	constructor(private context: vscode.ExtensionContext, private substrate: Substrate) {
@@ -12,7 +12,10 @@ export class StatesTreeView extends TreeView<Item> {
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		const items = this.getItems(element);
+		let items = this.getItems(element);
+		if (items.length <= 0) {
+			items = [new InfoItem(this.context, 'Connect to node to subscribe for state chain')];
+		}
 		return Promise.resolve(items);
 	}
 

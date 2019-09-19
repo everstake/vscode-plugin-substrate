@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
 import { Substrate } from '@/substrate';
-import { AccountItem } from '@/trees/items';
+import { AccountItem, InfoItem } from '@/trees/items';
 import { TreeView } from '@/common';
 
-type Item = AccountItem;
+type Item = AccountItem | InfoItem;
 
 export class AccountsTreeView extends TreeView<Item> {
 	constructor(private context: vscode.ExtensionContext, private substrate: Substrate) {
@@ -12,7 +12,10 @@ export class AccountsTreeView extends TreeView<Item> {
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		const items = this.getItems(element);
+		let items = this.getItems(element);
+		if (items.length <= 0) {
+			items = [new InfoItem(this.context, 'No accounts found')];
+		}
 		return Promise.resolve(items);
 	}
 

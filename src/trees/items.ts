@@ -136,15 +136,9 @@ export class ContractCodeItem extends vscode.TreeItem {
 		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly description: string,
-		public readonly contracts: ContractInfo[],
 		public readonly command?: vscode.Command,
 	) {
-		super(
-			label,
-			contracts.length ?
-			vscode.TreeItemCollapsibleState.Collapsed
-			: vscode.TreeItemCollapsibleState.None
-		);
+		super(label, vscode.TreeItemCollapsibleState.None);
 	}
 
 	get tooltip(): string {
@@ -179,6 +173,37 @@ export class ContractItem extends vscode.TreeItem {
 		return {
 			dark: assets(this.context, 'dark', 'contract.svg'),
 			light: assets(this.context, 'light', 'contract.svg'),
+		};
+	}
+}
+
+export class SeparatorItem extends vscode.TreeItem {
+	contextValue = 'separator';
+
+	constructor(
+		public readonly context: vscode.ExtensionContext,
+		public readonly command?: vscode.Command,
+	) {
+		super('---', vscode.TreeItemCollapsibleState.None);
+	}
+}
+
+export class InfoItem extends vscode.TreeItem {
+	contextValue = 'info';
+
+	constructor(
+		public readonly context: vscode.ExtensionContext,
+		public readonly label: string,
+		public readonly description?: string,
+		public readonly command?: vscode.Command,
+	) {
+		super(label, vscode.TreeItemCollapsibleState.None);
+	}
+
+	get iconPath(): { dark: string, light: string } {
+		return {
+			dark: assets(this.context, 'dark', 'info.svg'),
+			light: assets(this.context, 'light', 'info.svg'),
 		};
 	}
 }

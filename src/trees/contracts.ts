@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
-import { ContractItem, ContractCodeItem } from '@/trees/items';
+import { ContractItem, ContractCodeItem, SeparatorItem, InfoItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
 import { TreeView } from '@/common';
 
 export type ContractInfo = { name: string, address: string };
-export type ContractCodeInfo = { name: string, hash: string, contracts: ContractInfo[] };
+export type ContractCodeInfo = { name: string, hash: string };
 
-export type ContractsTreeItem = ContractItem | ContractCodeItem;
+export type ContractsTreeItem = ContractItem | ContractCodeItem | SeparatorItem | InfoItem;
 type Item = ContractsTreeItem;
 
 export class ContractsTreeView extends TreeView<Item> {
@@ -16,23 +16,28 @@ export class ContractsTreeView extends TreeView<Item> {
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		const items = this.getItems(element);
+		let items = this.getItems(element);
+		if (items.length <= 1) {
+			items = [new InfoItem(this.context, 'No contracts and codes found')];
+		}
 		return Promise.resolve(items);
 	}
 
 	getItems(element?: Item): Item[] {
-		if (element) {
-			const items = (element as ContractCodeItem).contracts;
-			return items.map(contract => {
-				return new ContractItem(this.context, contract.name, contract.address);
-			});
-		}
 		try {
 			const codes = this.substrate.getConnectionContractCodes();
-			const contractItems: Item[] = codes.map(code => {
-				return new ContractCodeItem(this.context, code.name, code.hash, code.contracts);
+			const contractCodeItems: Item[] = codes.map(code => {
+				return new ContractCodeItem(this.context, code.name, code.hash);
 			});
-			return contractItems;
+			const contracts = this.substrate.getConnectionContracts();
+			const contractItems: Item[] = contracts.map(contract => {
+				return new ContractItem(this.context, contract.name, contract.address);
+			});
+			return [
+				...contractCodeItems,
+				new SeparatorItem(this.context),
+				...contractItems,
+			];
 		} catch (err) {
 			console.log(`Failed to get contracts and codes`);
 			return [];

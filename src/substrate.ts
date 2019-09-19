@@ -10,13 +10,14 @@ import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 import { KeypairType } from '@polkadot/util-crypto/types';
 
-import { NodeInfo, ContractCodeInfo } from '@/trees';
+import { NodeInfo, ContractCodeInfo, ContractInfo } from '@/trees';
 import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
 
 export type AccountKey = KeyringPair$Json;
 export type ContractCodes = { [index: string]: ContractCodeInfo[] };
+export type Contracts = { [index: string]: ContractInfo[] };
 
 class ConnectHandler {
     public totalRetries = 0;
@@ -285,22 +286,62 @@ export class Substrate {
             existingContractCode.name = name;
             existingContractCode.hash = codeHash;
         } else {
-            codes.push({ name, hash: codeHash, contracts: [] });
+            codes.push({ name, hash: codeHash });
         }
         await this.updateConnectionContractCodes(codes);
     }
 
-    async saveContract(codeName: string, contractName: string, contractAddress: string) {
-        const codes = this.getConnectionContractCodes();
-        const existingContractCode = codes.find(contractCode => contractCode.name === codeName);
-        if (!existingContractCode) {
-            throw Error('Code not found');
+    getContracts(): Contracts {
+        const contractsString = this.context.globalState.get<string>('contracts');
+        if (!contractsString) {
+            return {};
         }
-        existingContractCode.contracts.push({
-            name: contractName,
-            address: contractAddress,
-        });
-        await this.updateConnectionContractCodes(codes);
+        return JSON.parse(contractsString);
+    }
+
+    getConnectionContracts(): ContractInfo[] {
+        if (!this.isConnected) {
+            return [];
+        }
+        const connectedNode = this.context.globalState.get<string>('connected-node');
+        if (!connectedNode) {
+            throw Error('Not connected to node');
+        }
+        const contracts = this.getContracts();
+        const nodeContracts = contracts[connectedNode] || [];
+        return nodeContracts;
+    }
+
+    async updateContracts(codes: Contracts) {
+        await this.context.globalState.update('contracts', JSON.stringify(codes));
+        await vscode.commands.executeCommand('nodes.refresh');
+    }
+
+    async updateConnectionContracts(codes: ContractInfo[]) {
+        const connectedNode = this.context.globalState.get<string>('connected-node');
+        if (!connectedNode) {
+            throw Error('Not connected to node');
+        }
+        const contracts = this.getContracts();
+        contracts[connectedNode] = codes;
+        await this.updateContracts(contracts);
+    }
+
+    async saveContract(contractName: string, contractAddress: string) {
+        const contracts = this.getConnectionContracts();
+        const existingContract = contracts.find(
+            contract => contract.name === contractName || contract.address === contractAddress
+        );
+        if (existingContract) {
+            existingContract.name = contractName;
+            existingContract.address = contractAddress;
+        } else {
+            contracts.push({
+                name: contractName,
+                address: contractAddress,
+            });
+        }
+        await this.updateConnectionContracts(contracts);
     }
 
     getExtrinsicModules(): string[] {

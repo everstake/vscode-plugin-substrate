@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
-import { NodeItem } from '@/trees/items';
+import { NodeItem, InfoItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
 import { TreeView } from '@/common';
 
-type Item = NodeItem;
+type Item = NodeItem | InfoItem;
 
 export type NodeInfo = { name: string, endpoint: string };
 
@@ -14,7 +14,10 @@ export class NodesTreeView extends TreeView<Item> {
 	}
 
 	getChildren(element?: Item): Thenable<Item[]> {
-		const items = this.getItems(element);
+		let items = this.getItems(element);
+		if (items.length <= 0) {
+			items = [new InfoItem(this.context, 'No node connections found')];
+		}
 		return Promise.resolve(items);
 	}
 
