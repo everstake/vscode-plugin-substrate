@@ -4,6 +4,11 @@ import BaseCommand from "@/common/baseCommand";
 
 export class ReopenInContainerCommand extends BaseCommand {
     async run() {
+        const folders = vscode.workspace.workspaceFolders;
+        if (!folders) {
+            vscode.window.showErrorMessage("Can not get devcontainer configuration");
+            return;
+        }
         const remoteContainersExtension = vscode.extensions.getExtension('ms-vscode-remote.remote-containers');
         if (!remoteContainersExtension) {
             console.error('Cannot find remote containers extension');

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
+import { Abi } from '@polkadot/api-contract';
 
 import { ContractItem, ContractCodeItem, SeparatorItem, InfoItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
 import { TreeView } from '@/common';
 
-export type ContractInfo = { name: string, address: string };
+export type ContractInfo = { name: string, address: string, abi: Abi };
 export type ContractCodeInfo = { name: string, hash: string };
 
 export type ContractsTreeItem = ContractItem | ContractCodeItem | SeparatorItem | InfoItem;
@@ -17,7 +18,7 @@ export class ContractsTreeView extends TreeView<Item> {
 
 	getChildren(element?: Item): Thenable<Item[]> {
 		let items = this.getItems(element);
-		if (items.length <= 1) {
+		if (items.length <= 0) {
 			items = [new InfoItem(this.context, 'No contracts and codes found')];
 		}
 		return Promise.resolve(items);
@@ -35,7 +36,7 @@ export class ContractsTreeView extends TreeView<Item> {
 			});
 			return [
 				...contractCodeItems,
-				new SeparatorItem(this.context),
+				...(contractItems.length <= 0 || contractCodeItems.length <= 0 ? [] : [new SeparatorItem(this.context)]),
 				...contractItems,
 			];
 		} catch (err) {

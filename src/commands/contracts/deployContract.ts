@@ -12,8 +12,8 @@ type DeployContractArgs = {
     code: { name: string, hash: string },
     contract_name: string,
     contract_abi: Abi,
-    endowment: number,
-    max_gas: number,
+    endowment: string,
+    max_gas: string,
 };
 
 export class DeployContractCommand extends BaseCommand {
@@ -78,7 +78,7 @@ export class DeployContractCommand extends BaseCommand {
                         return;
                     }
                     vscode.window.showInformationMessage(`Completed on block ${finalized} with code hash ${resultHash}`);
-                    this.substrate.saveContract(value.contract_name, resultHash).catch(() => {
+                    this.substrate.saveContract(value.contract_name, resultHash, value.contract_abi).catch(() => {
                         vscode.window.showErrorMessage(`Failed to store contract`);
                     });
                 }
@@ -156,7 +156,7 @@ export class DeployContractCommand extends BaseCommand {
     }
 
     async addEndowment(input: MultiStepInput, state: Partial<DeployContractArgs>) {
-        const val = await input.showInputBox({
+        state.endowment = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The allotted endowment for this contract, i.e. the amount transferred to the contract upon instantiation',
@@ -167,21 +167,17 @@ export class DeployContractCommand extends BaseCommand {
                 if (!value || !value.trim()) {
                     return 'Endowment is required';
                 }
-                const num = Number.parseInt(value, 10);
-                const isNan = Number.isNaN(num);
-                if (isNan) {
-                    return 'The endowment specified was not a number';
+                if(!value.match(/^-{0,1}\d+$/)){
+                    return 'The endowment specified is not a number';
                 }
                 return '';
             },
-            convert: async (value) => Number.parseInt(value),
         });
-        state.endowment = Number.parseInt(val, 10);
         return (input: MultiStepInput) => this.addMaxGas(input, state);
     }
 
     async addMaxGas(input: MultiStepInput, state: Partial<DeployContractArgs>) {
-        const val = await input.showInputBox({
+        state.max_gas = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The maximum amount of gas that can be used by this deployment',
@@ -192,16 +188,12 @@ export class DeployContractCommand extends BaseCommand {
                 if (!value || !value.trim()) {
                     return 'Maximum gas is required';
                 }
-                const num = Number.parseInt(value, 10);
-                const isNan = Number.isNaN(num);
-                if (isNan) {
-                    return 'The maximum gas specified was not a number';
+                if(!value.match(/^-{0,1}\d+$/)){
+                    return 'The maximum gas specified is not a number';
                 }
                 return '';
             },
-            convert: async (value) => Number.parseInt(value),
         });
-        state.max_gas = Number.parseInt(val, 10);
         return (input: MultiStepInput) => this.addAccount(input, state);
     }
 

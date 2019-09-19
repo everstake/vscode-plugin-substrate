@@ -162,6 +162,7 @@ export class ContractItem extends vscode.TreeItem {
 		public readonly description: string,
 		public readonly command?: vscode.Command,
 	) {
+		// Todo: Add support for methods of smart contract and add Collapsed state
 		super(label, vscode.TreeItemCollapsibleState.None);
 	}
 

@@ -9,9 +9,10 @@ import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 import { KeypairType } from '@polkadot/util-crypto/types';
+import { RegistryTypes } from '@polkadot/types/types';
+import { Abi } from '@polkadot/api-contract';
 
 import { NodeInfo, ContractCodeInfo, ContractInfo } from '@/trees';
-import { RegistryTypes } from '@polkadot/types/types';
 
 const exec = util.promisify(cp_exec);
 
@@ -327,7 +328,7 @@ export class Substrate {
         await this.updateContracts(contracts);
     }
 
-    async saveContract(contractName: string, contractAddress: string) {
+    async saveContract(contractName: string, contractAddress: string, abi: Abi) {
         const contracts = this.getConnectionContracts();
         const existingContract = contracts.find(
             contract => contract.name === contractName || contract.address === contractAddress
@@ -335,10 +336,12 @@ export class Substrate {
         if (existingContract) {
             existingContract.name = contractName;
             existingContract.address = contractAddress;
+            existingContract.abi = abi;
         } else {
             contracts.push({
                 name: contractName,
                 address: contractAddress,
+                abi: abi,
             });
         }
         await this.updateConnectionContracts(contracts);
