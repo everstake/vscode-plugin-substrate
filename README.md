@@ -26,7 +26,11 @@ Steps:
 
 ## Features
 
-All features and it's functionality you can find in [the tutorial file](docs/TUTORIAL.md).
+All features and it's functionality you can find in [the features file](docs/FEATURES.md).
+
+## Tutorial
+
+Tutorial of how to use this plugin you can find in [the tutorial file](docs/TUTORIAL.md).
 
 ## Plugin dependencies
 
