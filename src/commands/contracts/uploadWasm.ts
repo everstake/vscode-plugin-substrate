@@ -125,27 +125,23 @@ export class UploadWasmCommand extends BaseCommand {
     }
 
     async addMaxGas(input: MultiStepInput, state: Partial<UploadWasmArgs>) {
-        const gas = await input.showInputBox({
+        state.max_gas = await input.showInputBox({
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The maximum amount of gas that can be used by this deployment',
-            placeholder: 'ex. 10000',
+            placeholder: 'ex. 1000000000000000',
             ignoreFocusOut: true,
             value: (typeof state.max_gas === 'string') ? state.max_gas : '',
             validate: async (value) => {
                 if (!value || !value.trim()) {
-                    return 'Maximum gas is required';
+                    return 'Endowment is required';
                 }
-                const num = Number.parseInt(value, 10);
-                const isNan = Number.isNaN(num);
-                if (isNan) {
-                    return 'The maximum gas specified was not a number';
+                if(!value.match(/^-{0,1}\d+$/)){
+                    return 'The maximum gas specified is not a number';
                 }
                 return '';
             },
-            convert: async (value) => Number.parseInt(value),
         });
-        state.max_gas = Number.parseInt(gas, 10);
         return (input: MultiStepInput) => this.addAccount(input, state);
     }
 
