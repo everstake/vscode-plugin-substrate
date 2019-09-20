@@ -203,8 +203,8 @@ export class InfoItem extends vscode.TreeItem {
 
 	get iconPath(): { dark: string, light: string } {
 		return {
-			dark: assets(this.context, 'dark', 'info.svg'),
-			light: assets(this.context, 'light', 'info.svg'),
+			dark: assets(this.context, 'dark', 'warn.svg'),
+			light: assets(this.context, 'light', 'warn.svg'),
 		};
 	}
 }
