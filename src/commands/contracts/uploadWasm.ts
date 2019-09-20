@@ -130,7 +130,7 @@ export class UploadWasmCommand extends BaseCommand {
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The maximum amount of gas that can be used by this deployment',
-            placeholder: 'ex. 1000000000000000',
+            placeholder: 'ex. 100000',
             ignoreFocusOut: true,
             value: (typeof state.max_gas === 'string') ? state.max_gas : '',
             validate: async (value) => {
