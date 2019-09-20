@@ -70,25 +70,25 @@ Now let's create a new account in our plugin. To create a new account with it's 
 
 ### Step 6: Subscribe to chain state
 
-To subscribe for chain data in `CHAIN STATE` panel click on the item `balances`, then in the opened tree right-click on the item `freeBalance` and click `Subscribe for data`. Select your account.
+To subscribe for chain data go to `CHAIN STATE` panel and click on the item `balances`, then in the opened tree right-click on the item `freeBalance` and click `Subscribe for data`. Select your account.
 
 ![Subscribe to chain data](images/default/8.png "Subscribe to chain state")
 
 ### Step 7: Copy account address
 
-To copy account address in `ACCOUNTS` panel right click on your account and click on the option `Copy address...`.
+To copy account address go to `ACCOUNTS` panel and right click on your account and click on the option `Copy address...`.
 
 ![Copy account address](images/default/9.png "Copy account address")
 
 ### Step 8: Execute transfer extrinsic
 
-To execute extrinsic in `EXTRINSICS` panel click on the item `balances`, then in the opened tree right-click on the item `transfer` and click `Execute...`. Type in the inputs following data: address (paste it with `CMD + V`), balance (amount in `pico`), an account which will sign the transaction (select `Alice` as this account has funds by default), password (empty for `Alice`).
+To execute extrinsic go to `EXTRINSICS` panel and click on the item `balances`, then in the opened tree right-click on the item `transfer` and click `Execute...`. Type in the inputs following data: address (paste it with `CMD + V`), balance (amount in `pico`), an account which will sign the transaction (select `Alice` as this account has funds by default), password (empty for `Alice`).
 
 ![Execute transfer extrinsic](images/default/10.png "Execute transfer extrinsic")
 
 ### Step 9: Execute transfer extrinsic
 
-To execute extrinsic in `EXTRINSICS` panel click on the item `balances`, then in the opened tree right-click on the item `transfer` and click `Execute...`. Type in the inputs following data: address (paste it with `CMD + V`), balance (amount in `pico`), an account which will sign the transaction (select `Alice` as this account has funds by default), password (empty for `Alice`).
+To execute extrinsic go to `EXTRINSICS` panel and click on the item `balances`, then in the opened tree right-click on the item `transfer` and click `Execute...`. Type in the inputs following data: address (paste it with `CMD + V`), balance (amount in `pico`), an account which will sign the transaction (select `Alice` as this account has funds by default), password (empty for `Alice`).
 
 ![Execute transfer extrinsic](images/default/10.png "Execute transfer extrinsic")
 
@@ -114,6 +114,16 @@ Better to go through [this](https://substrate.dev/substrate-contracts-workshop/#
 
 ### Step 3: Upload WASM code to node
 
-To upload WASM code in `SMART CONTRACTS` panel click on the `...` button and select `Upload WASM` option. Type in the inputs following data: select file with wasm, name of the contract code, maximum gas amount, account which sign transaction, password to decrypt account.
+To upload WASM code go to `SMART CONTRACTS` panel and click on the `...` button and select `Upload WASM` option. Type in the inputs following data: file with wasm, name of the contract code, maximum gas amount, account which sign transaction, password to decrypt account.
 
 ![Upload WASM](images/contracts/3.png "Upload WASM")
+
+### Step 4: Deploy contract to node
+
+To publish a contract go to `SMART CONTRACTS` panel and click on the `...` button and select `Deploy contract` option. Type in the inputs following data: code hash, contract name, file with abi, endowment, maximum gas amount, account which sign transaction, password to decrypt account.
+
+![Deploy contract](images/contracts/4.png "Deploy contract")
+
+After successful deploy of contract you will see similar result to this:
+
+![Contracts](images/contracts/5.png "Contracts")
