@@ -99,6 +99,7 @@ export class UploadWasmCommand extends BaseCommand {
         if (!uri || uri && uri.length <= 0) {
             throw Error('Code not specified');
         }
+        // Todo: Fix error on cancel
         const codePath = uri[0].fsPath;
         const wasm: Uint8Array = await fs.promises.readFile(codePath);
         const isWasmValid = wasm.subarray(0, 4).join(',') === '0,97,115,109'; // '\0asm'
