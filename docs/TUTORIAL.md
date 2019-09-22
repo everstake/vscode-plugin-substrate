@@ -2,11 +2,7 @@
 
 With this file, you will learn how to use this plugin.
 
-## Default demo
-
-Let’s go through the plugin main features and see what’s happening.
-
-### Step 1: Install and start the plugin
+## Installation and requirements
 
 To start using this extension - you can install it from [marketplace](https://marketplace.visualstudio.com/items?itemName=enfipy.plugin-polkadot). For this extension to work properly, the following prerequisites are required:
 
@@ -19,6 +15,40 @@ To compile this plugin from sources you need the following:
 2. Installed [plugin dependencies](../README.md#plugin-dependencies)
 3. Yarn v1.13.0+
 4. Installed [Substrate](https://substrate.dev/docs/en/getting-started)
+
+## Demo with development inside docker container
+
+To pass through this demo you need installed [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension.
+
+### Step 1: Configure devcontainer
+
+To configure devcontainer you need to open the `substrate` node project and open substrate plugin `TreeView` on the sidebar. Go to panel `NODES` and click on the `...`, then select `Configure devcontainer` option.
+
+![Configure devcontainer](images/devcontainer/1.png "Configure devcontainer")
+
+As soon as configuration will be finished the `.devcontainer` folder will show up in the root of the opened project.
+
+![Devcontainer folder](images/devcontainer/2.png "Devcontainer folder")
+
+### Step 2: Reopen project in dev container
+
+To reopen your project in dev container go to `NODES` panel and click on the `...`, then select `Reopen in container`.
+
+![Reopen in container](images/devcontainer/3.png "Reopen in container")
+
+After vscode reopen, you'll see floating information message about building the image.
+
+![Build devcontainer image](images/devcontainer/4.png "Build devcontainer image")
+
+After successful build, you will able to run rust, cargo and substrate bash executables.
+
+![Project inside devcontainer](images/devcontainer/5.png "Project inside devcontainer")
+
+## Default demo
+
+Let’s go through the plugin main features and see what’s happening.
+
+### Step 1: Compilation and start
 
 To compile this plugin:
 
