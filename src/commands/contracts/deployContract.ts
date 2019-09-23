@@ -4,9 +4,9 @@ import { Abi } from '@polkadot/api-contract';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
-import { MultiStepInput, MultiStepInputCallback } from '@/common';
+import { MultiStepInput } from '@/common';
 import { AccountKey } from '@/substrate';
-import { ContractABIMethod, ContractABIArg } from '@polkadot/api-contract/types';
+import { ContractABIArg } from '@polkadot/api-contract/types';
 
 type DeployContractArgs = {
     account: KeyringPair,
@@ -149,8 +149,6 @@ export class DeployContractCommand extends BaseCommand {
         const abi = new Abi(abiJson);
 
         state.contract_abi = abi;
-
-        // Todo: Update total steps based on abi deploy arguments. Add inputs for every argument
 
         return (input: MultiStepInput) => this.nextArgument(input, state);
     }

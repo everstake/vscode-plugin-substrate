@@ -3,7 +3,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { Abi } from '@polkadot/api-contract';
 
 import BaseCommand from "@/common/baseCommand";
-import { MultiStepInput, MultiStepInputCallback, assets } from '@/common';
+import { MultiStepInput } from '@/common';
 import { ContractItem } from "@/trees";
 import { AccountKey } from '@/substrate';
 import { ContractABIMethod, ContractABIArg } from '@polkadot/api-contract/types';

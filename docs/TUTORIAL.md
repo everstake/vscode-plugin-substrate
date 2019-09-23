@@ -157,3 +157,9 @@ To publish a contract go to `SMART CONTRACTS` panel and click on the `...` butto
 After successful deploy of contract you will see similar result to this:
 
 ![Contracts](images/contracts/5.png "Contracts")
+
+### Step 5: Call contract method
+
+To execute contract extrinsics go to `SMART CONTRACTS` panel and click on the contract and select `Call a contract method...` option. Select which method you want to execute, method arguments, endowment (balance you want to send to the smart contract), maximum gas amount, account which sign transaction, password to decrypt account.
+
+![Call contract](images/contracts/6.png "Call contract")
