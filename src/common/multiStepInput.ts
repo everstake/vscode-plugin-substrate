@@ -12,8 +12,8 @@ export class InputFlowAction {
 
 export interface MultiStepInputParameters {
   title: string;
-  step: number;
-  totalSteps: number;
+  step?: number;
+  totalSteps?: number;
   ignoreFocusOut?: boolean;
   shouldResume?: () => Thenable<boolean>;
   buttons?: QuickInputButton[];
@@ -96,8 +96,10 @@ export class MultiStepInput {
       return await new Promise<any>((resolve, reject) => {
         const input = window.createInputBox();
         input.title = title;
-        input.step = step;
-        input.totalSteps = totalSteps;
+        if (step && totalSteps) {
+          input.step = step;
+          input.totalSteps = totalSteps;
+        }
         input.value = value || '';
         input.prompt = prompt;
         input.placeholder = placeholder;
@@ -167,8 +169,10 @@ export class MultiStepInput {
       return await new Promise<any>((resolve, reject) => {
         const input = window.createQuickPick<T>();
         input.title = title;
-        input.step = step;
-        input.totalSteps = totalSteps;
+        if (step && totalSteps) {
+          input.step = step;
+          input.totalSteps = totalSteps;
+        }
         input.placeholder = placeholder;
         input.ignoreFocusOut = !!ignoreFocusOut;
         input.matchOnDescription = !!matchOnDescription;

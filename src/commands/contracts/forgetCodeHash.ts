@@ -18,6 +18,6 @@ export class ForgetCodeHashCommand extends BaseCommand {
             vscode.window.showWarningMessage('You are not connected to node');
         }
         await vscode.commands.executeCommand('nodes.refresh');
-        vscode.window.showInformationMessage(`Successfully removed code hash "${item.description}"`);
+        vscode.window.showInformationMessage(`Successfully removed code hash "${item.label}"`);
     }
 }

@@ -32,7 +32,7 @@ export class ContractsTreeView extends TreeView<Item> {
 			});
 			const contracts = this.substrate.getConnectionContracts();
 			const contractItems: Item[] = contracts.map(contract => {
-				return new ContractItem(this.context, contract.name, contract.address);
+				return new ContractItem(this.context, contract.name, contract.address, contract.abi);
 			});
 			return [
 				...contractCodeItems,
@@ -40,7 +40,7 @@ export class ContractsTreeView extends TreeView<Item> {
 				...contractItems,
 			];
 		} catch (err) {
-			console.log(`Failed to get contracts and codes`);
+			console.log(`Failed to get contracts and codes: ${err.message}`);
 			return [];
 		}
 	}

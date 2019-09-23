@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { assets } from '@/common';
-import { ContractInfo } from '@/trees';
+import { Abi } from '@polkadot/api-contract';
 
 export class Module extends vscode.TreeItem {
 	contextValue = 'module';
@@ -160,9 +160,10 @@ export class ContractItem extends vscode.TreeItem {
 		public readonly context: vscode.ExtensionContext,
 		public readonly label: string,
 		public readonly description: string,
+		public readonly abi: Abi,
 		public readonly command?: vscode.Command,
 	) {
-		// Todo: Add support for methods of smart contract and add Collapsed state
+		// Todo: [optional] Add support for methods of smart contract and add Collapsed state
 		super(label, vscode.TreeItemCollapsibleState.None);
 	}
 

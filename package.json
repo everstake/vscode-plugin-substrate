@@ -190,6 +190,10 @@
       {
         "command": "contracts.deployContract",
         "title": "Deploy contract"
+      },
+      {
+        "command": "contracts.callContractMethod",
+        "title": "Call a contract method..."
       }
     ],
     "menus": {
@@ -319,6 +323,11 @@
         {
           "command": "states.subscribe",
           "when": "view == states && viewItem == state",
+          "group": "section-1"
+        },
+        {
+          "command": "contracts.callContractMethod",
+          "when": "view == contracts && viewItem == contract",
           "group": "section-1"
         },
         {

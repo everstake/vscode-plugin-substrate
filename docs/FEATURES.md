@@ -39,6 +39,7 @@ This extension provides the next features:
    5. [Forget code hash](#forget-code-hash)
    6. [Forget contract](#forget-contract)
    7. [Copy hash](#copy-hash)
+   8. [Call contract method](#call-contract-method)
 
 ## How to use
 
@@ -159,6 +160,10 @@ That command will remove the contract from plugin storage.
 ### Copy hash <sup><sub> [#panel-item](#tags)
 
 That command will copy the hash of contract or code.
+
+### Call contract method <sup><sub> [#panel-item](#tags)
+
+That command will will show contract available methods and after select will execute extrinsic.
 
 ## Tags
 

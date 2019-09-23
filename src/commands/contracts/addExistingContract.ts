@@ -40,7 +40,7 @@ export class AddExistingContractCommand extends BaseCommand {
             ...this.options,
             step: input.CurrentStepNumber,
             prompt: 'The address for the deployed contract instance',
-            placeholder: 'ex. 5H9BaL7jFNUjnADstLySKgFonXPinm6bSyUwxZxRXeh4MTGV',
+            placeholder: 'ex. 0xa54a4b44bb0a02b53a59bd47b478dcf1cc451eaee651bebc1bef5fa423b7014b',
             ignoreFocusOut: true,
             value: (typeof state.contract_address === 'string') ? state.contract_address : '',
             validate: async (value) => (!value || !value.trim()) ? 'Contract address is required' : ''

@@ -15,7 +15,6 @@ type ExtrinsicArgs = {
 export class RunExtrinsicCommand extends BaseCommand {
     options = {
         title: 'Run extrinsic command',
-        totalSteps: 1,
         ignoreFocusOut: true,
     };
 
@@ -28,7 +27,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         const extObj = extrinsic.toJSON();
         const params: ExtrinsicParameter[] = extObj.args;
 
-        this.options.totalSteps = params.length + 2;
         const state = { params, args: {} } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
@@ -124,7 +122,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         };
         const result = await input.showInputBox({
             ...this.options,
-            step: input.CurrentStepNumber,
             prompt,
             placeholder: 'ex. Some data',
             value: (typeof val === 'string') ? val : '',
@@ -147,7 +144,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         }));
         const result = await input.showQuickPick({
             ...this.options,
-            step: input.CurrentStepNumber,
             placeholder: 'ex. Alice',
             items,
         });
@@ -163,7 +159,6 @@ export class RunExtrinsicCommand extends BaseCommand {
         state.account = keyring.addFromJson(account);
         await input.showInputBox({
             ...this.options,
-            step: input.CurrentStepNumber,
             prompt: 'Account password',
             placeholder: 'ex. StrongPassword',
             password: true,

@@ -84,7 +84,7 @@ export class DeployContractCommand extends BaseCommand {
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Error on put code: ${err.message}`);
+            vscode.window.showErrorMessage(`Error on deploy ccontract: ${err.message}`);
         }
     }
 
@@ -162,7 +162,7 @@ export class DeployContractCommand extends BaseCommand {
             prompt: 'The allotted endowment for this contract, i.e. the amount transferred to the contract upon instantiation',
             placeholder: 'ex. 1000000000000000',
             ignoreFocusOut: true,
-            value: (typeof state.max_gas === 'string') ? state.max_gas : '',
+            value: (typeof state.endowment === 'string') ? state.endowment : '',
             validate: async (value) => {
                 if (!value || !value.trim()) {
                     return 'Endowment is required';

@@ -310,6 +310,9 @@ export class Substrate {
         }
         const contracts = this.getContracts();
         const nodeContracts = contracts[connectedNode] || [];
+        nodeContracts.forEach((contract: ContractInfo) => {
+            contract.abi = new Abi(contract.abi.abi);
+        });
         return nodeContracts;
     }
 
