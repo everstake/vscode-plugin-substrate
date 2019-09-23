@@ -4,8 +4,9 @@ import { Abi } from '@polkadot/api-contract';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 import BaseCommand from "@/common/baseCommand";
-import { MultiStepInput } from '@/common';
+import { MultiStepInput, MultiStepInputCallback } from '@/common';
 import { AccountKey } from '@/substrate';
+import { ContractABIMethod, ContractABIArg } from '@polkadot/api-contract/types';
 
 type DeployContractArgs = {
     account: KeyringPair,
@@ -14,20 +15,20 @@ type DeployContractArgs = {
     contract_abi: Abi,
     endowment: string,
     max_gas: string,
+    params: { [key: string]: string },
 };
 
 export class DeployContractCommand extends BaseCommand {
     options = {
         title: 'Deploy contract command',
-        totalSteps: 7,
         ignoreFocusOut: true,
     };
 
     async run() {
-        const state = {} as Partial<DeployContractArgs>;
+        const state = { params: {} } as Partial<DeployContractArgs>;
         const argResult = await MultiStepInput.run(input => this.addCodeHash(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Extrinsic execution canceled');
+            vscode.window.showInformationMessage('Deploy contract execution canceled');
             return;
         }
         const value = state as DeployContractArgs;
@@ -44,7 +45,7 @@ export class DeployContractCommand extends BaseCommand {
                 value.endowment,
                 value.max_gas,
                 value.code.hash,
-                value.contract_abi.deploy(), // Todo: Add abi arguments support
+                value.contract_abi.deploy(...Object.values(value.params)),
             );
 
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
@@ -130,7 +131,6 @@ export class DeployContractCommand extends BaseCommand {
     async addContractAbi(input: MultiStepInput, state: Partial<DeployContractArgs>) {
         const uri = await input.showOpenDialog({
             ...this.options,
-            shouldResume: async () => true,
             step: input.CurrentStepNumber,
             openLabel: 'Choose ABI',
             canSelectFiles: true,
@@ -152,7 +152,39 @@ export class DeployContractCommand extends BaseCommand {
 
         // Todo: Update total steps based on abi deploy arguments. Add inputs for every argument
 
-        return (input: MultiStepInput) => this.addEndowment(input, state);
+        return (input: MultiStepInput) => this.nextArgument(input, state);
+    }
+
+    async nextArgument(input: MultiStepInput, state: Partial<DeployContractArgs>): Promise<any> {
+        const stepsPassed = 3;
+        const currentStep = input.CurrentStepNumber - stepsPassed;
+        const args = state.contract_abi!.abi.deploy.args;
+        const arg = args[currentStep - 1];
+        // Todo: Add support of all types
+        await this.textInput(input, state, currentStep, arg);
+        if (currentStep >= args.length) {
+            return (input: MultiStepInput) => this.addEndowment(input, state);
+        }
+        return (input: MultiStepInput) => this.nextArgument(input, state);
+    }
+
+    async textInput(input: MultiStepInput, state: Partial<DeployContractArgs>, currentStep: number, param: ContractABIArg) {
+        const prompt = `${param.name}: ${param.type}`;
+        const val = state.params![currentStep - 1];
+        // const button = {
+        //     iconPath: assets(this.context, 'dark', 'file.svg'),
+        //     tooltip: 'Open from file',
+        // };
+        const result = await input.showInputBox({
+            ...this.options,
+            prompt,
+            placeholder: 'ex. Some data',
+            value: (typeof val === 'string') ? val : '',
+            validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
+            // buttons: [button],
+        });
+        // Result of click on new button here
+        state.params![currentStep - 1] = result;
     }
 
     async addEndowment(input: MultiStepInput, state: Partial<DeployContractArgs>) {

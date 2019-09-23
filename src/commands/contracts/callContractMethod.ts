@@ -3,9 +3,10 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { Abi } from '@polkadot/api-contract';
 
 import BaseCommand from "@/common/baseCommand";
-import { MultiStepInput } from '@/common';
+import { MultiStepInput, MultiStepInputCallback, assets } from '@/common';
 import { ContractItem } from "@/trees";
 import { AccountKey } from '@/substrate';
+import { ContractABIMethod, ContractABIArg } from '@polkadot/api-contract/types';
 
 type CallContractArgs = {
     abi: Abi,
@@ -23,7 +24,7 @@ export class CallContractMethodCommand extends BaseCommand {
     };
 
     async run(item: ContractItem) {
-        const state = { abi: item.abi, params: [] } as Partial<CallContractArgs>;
+        const state = { abi: item.abi, value: '0', params: [] } as Partial<CallContractArgs>;
         const argResult = await MultiStepInput.run(input => this.selectContractMethod(input, state));
         if (!argResult) {
             vscode.window.showInformationMessage('Contract method execution canceled');
@@ -43,7 +44,7 @@ export class CallContractMethodCommand extends BaseCommand {
                 item.description,
                 value.value,
                 value.max_gas,
-                methodExec(...value.params), // Todo: Add abi arguments support
+                methodExec(...value.params),
             );
 
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
@@ -75,12 +76,15 @@ export class CallContractMethodCommand extends BaseCommand {
 
     async selectContractMethod(input: MultiStepInput, state: Partial<CallContractArgs>) {
         const methods = state.abi!.abi.messages;
-        const items = methods.map(method => ({
-            label: `🧭 ${method.name}(${method.args.join(', ')}): ${method.return_type}`,
-            description: method.mutates ? 'will mutate storage' : 'won\'t mutate storage',
-            detail: `Method selector: ${method.selector}`,
-            method: method.name,
-        }));
+        const items = methods.map(method => {
+            const args = method.args.map((arg: ContractABIArg) => `${arg.name}: ${arg.type}`);
+            return {
+                label: `🧭 ${method.name}(${args.join(', ')}): ${method.return_type}`,
+                description: method.mutates ? 'will mutate storage' : 'won\'t mutate storage',
+                detail: `Method selector: ${method.selector}`,
+                method: method.name,
+            };
+        });
         const res = await input.showQuickPick({
             ...this.options,
             placeholder: 'ex. get(): bool',
@@ -129,7 +133,49 @@ export class CallContractMethodCommand extends BaseCommand {
                 return '';
             },
         });
-        return (input: MultiStepInput) => this.addAccount(input, state);
+        const method = state.abi!.abi.messages.find((msg: ContractABIMethod) => msg.name === state.method);
+        if (!method) {
+            throw Error(`Invalid argument. Cannot continue with arguments of contract method`);
+        }
+        if (method.args.length <= 0) {
+            return (input: MultiStepInput) => this.addAccount(input, state);
+        }
+        return (input: MultiStepInput) => this.nextArgument(input, state);
+    }
+
+    async nextArgument(input: MultiStepInput, state: Partial<CallContractArgs>): Promise<any> {
+        const stepsPassed = 3;
+        const currentStep = input.CurrentStepNumber - stepsPassed;
+        const method = state.abi!.abi.messages.find((msg: ContractABIMethod) => msg.name === state.method);
+        if (!method) {
+            throw Error(`Invalid argument. Cannot continue with arguments of contract method`);
+        }
+        const arg = method.args[currentStep - 1];
+        // Todo: Add support of all types
+        await this.textInput(input, state, currentStep, arg);
+        if (currentStep >= method.args.length) {
+            return (input: MultiStepInput) => this.addAccount(input, state);
+        }
+        return (input: MultiStepInput) => this.nextArgument(input, state);
+    }
+
+    async textInput(input: MultiStepInput, state: Partial<CallContractArgs>, currentStep: number, param: ContractABIArg) {
+        const prompt = `${param.name}: ${param.type}`;
+        const val = state.params![currentStep - 1];
+        // const button = {
+        //     iconPath: assets(this.context, 'dark', 'file.svg'),
+        //     tooltip: 'Open from file',
+        // };
+        const result = await input.showInputBox({
+            ...this.options,
+            prompt,
+            placeholder: 'ex. Some data',
+            value: (typeof val === 'string') ? val : '',
+            validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
+            // buttons: [button],
+        });
+        // Result of click on button here
+        state.params![currentStep - 1] = result;
     }
 
     async addAccount(input: MultiStepInput, state: Partial<CallContractArgs>) {

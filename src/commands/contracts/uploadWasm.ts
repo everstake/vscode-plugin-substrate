@@ -86,7 +86,6 @@ export class UploadWasmCommand extends BaseCommand {
     async addCode(input: MultiStepInput, state: Partial<UploadWasmArgs>) {
         const uri = await input.showOpenDialog({
             ...this.options,
-            shouldResume: async () => true,
             step: input.CurrentStepNumber,
             openLabel: 'Upload WASM',
             canSelectFiles: true,

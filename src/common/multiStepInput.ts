@@ -234,7 +234,8 @@ export class MultiStepInput {
     this.current = undefined;
     const uri = await window.showOpenDialog(props);
     if (!uri) {
-      return Promise.reject(props.shouldResume && await props.shouldResume() ? InputFlowAction.Back : InputFlowAction.Cancel);
+      const res = props.shouldResume && await props.shouldResume();
+      return Promise.reject(res ? InputFlowAction.Back : InputFlowAction.Cancel);
     }
     return Promise.resolve(uri);
   }
