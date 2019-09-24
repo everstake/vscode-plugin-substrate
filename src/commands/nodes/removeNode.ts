@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { NodeItem, NodeInfo } from "@/trees";
 
 export class RemoveNodeCommand extends BaseCommand {
@@ -21,6 +21,6 @@ export class RemoveNodeCommand extends BaseCommand {
         }
 
         await vscode.commands.executeCommand('nodes.refresh');
-        vscode.window.showInformationMessage(`Successfully removed node "${item.label}"`);
+        log(`Successfully removed node "${item.label}"`, 'info', true);
     }
 }

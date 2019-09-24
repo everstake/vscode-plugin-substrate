@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 // import { getTypeRegistry } from "@polkadot/types";
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 
 export class EditTypesCommand extends BaseCommand {
     // private subscriptions: vscode.Disposable | undefined;
@@ -11,7 +11,6 @@ export class EditTypesCommand extends BaseCommand {
     async run() {
         const globalPath = this.context.globalStoragePath;
         const filePath = path.join(globalPath, 'types.json');
-
         try {
             await this.openTypes(filePath);
         } catch (error) {
@@ -20,8 +19,7 @@ export class EditTypesCommand extends BaseCommand {
             } catch (error) {}
             await fs.promises.writeFile(filePath, '{}\n', 'utf8');
             const tmp = this.openTypes(filePath).catch(async () => {
-                console.log('Failed to open types');
-                vscode.window.showErrorMessage('Failed to open types');
+                log('Failed to open types', 'error', true);
             });
             await tmp;
         }

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { Abi } from '@polkadot/api-contract';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { MultiStepInput } from '@/common';
 import { ContractItem } from "@/trees";
 import { AccountKey } from '@/substrate';
@@ -27,14 +27,14 @@ export class CallContractMethodCommand extends BaseCommand {
         const state = { abi: item.abi, value: '0', params: [] } as Partial<CallContractArgs>;
         const argResult = await MultiStepInput.run(input => this.selectContractMethod(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Contract method execution canceled');
+            log('Contract method execution canceled', 'info', true);
             return;
         }
         const value = state as CallContractArgs;
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                vscode.window.showErrorMessage('Not connected to a node');
+                log('Not connected to a node', 'error', true);
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
@@ -50,27 +50,27 @@ export class CallContractMethodCommand extends BaseCommand {
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
-                    console.log('Completed at block hash', finalized);
+                    log(`Completed at block hash: ${finalized}`, 'info', false);
 
-                    console.log('Events:');
+                    log(`Events:`, 'info', false);
                     let error: string = '';
                     events.forEach(({ phase, event: { data, method, section } }: any) => {
                         const res = `\t ${phase.toString()} : ${section}.${method} ${data.toString()}`;
                         if (res.indexOf('Failed') !== -1) {
                             error += res;
                         }
-                        console.log(res);
+                        log(res, 'info', false);
                     });
                     if (error !== '') {
                         // Todo: Get error
-                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        log(`Failed on block "${finalized}" with error: ${error}`, 'error', true);
                         return;
                     }
-                    vscode.window.showInformationMessage(`Completed on block ${finalized}`);
+                    log(`Completed on block ${finalized}`, 'info', true);
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Error on put code: ${err.message}`);
+            log(`Error on put code: ${err.message}`, 'error', true);
         }
     }
 

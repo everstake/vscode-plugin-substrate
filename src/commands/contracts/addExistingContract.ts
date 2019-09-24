@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { Abi } from '@polkadot/api-contract';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { MultiStepInput } from '@/common';
 
 type AddExistingContractArgs = {
@@ -22,16 +22,16 @@ export class AddExistingContractCommand extends BaseCommand {
         const state = {} as Partial<AddExistingContractArgs>;
         const argResult = await MultiStepInput.run(input => this.addContractAddress(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Add existing code execution canceled');
+            log('Add existing contract execution canceled', 'info', true);
             return;
         }
         const value = state as AddExistingContractArgs;
 
         try {
             await this.substrate.saveContract(value.contract_name, value.contract_address, value.contract_abi);
-            vscode.window.showInformationMessage('Successfully added contract');
+            log('Successfully added contract', 'info', true);
         } catch (err) {
-            vscode.window.showErrorMessage(`Failed to store contract`);
+            log(`Failed to store contract: ${err.message}`, 'error', true);
         }
     }
 

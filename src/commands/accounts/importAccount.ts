@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
-import { AccountsTreeView } from "@/trees";
+import { BaseCommand, log } from "@/common";
 
 export class ImportAccountCommand extends BaseCommand {
     async run() {
@@ -11,16 +10,14 @@ export class ImportAccountCommand extends BaseCommand {
             canSelectFolders: false,
             canSelectMany: false,
             filters: {
-                'Json': ['json'],
+                'JSON': ['json'],
             },
         });
         if (!res) {
-            console.log('Account wasn\'t added');
+            log('Account wasn\'t added', 'info', true);
             return;
         }
         await this.substrate.importKeyringPair(res[0].path);
-
-        const tree = this.trees.get('accounts') as AccountsTreeView;
-        tree.refresh();
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 }

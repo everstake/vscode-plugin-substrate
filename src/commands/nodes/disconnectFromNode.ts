@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand } from "@/common";
 
 export class DisconnectFromNodeCommand extends BaseCommand {
     async run() {

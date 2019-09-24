@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
-import { NodesTreeView } from "@/trees";
+import { BaseCommand } from "@/common";
 
 export class StartNodeCommand extends BaseCommand {
     async run() {
@@ -12,8 +11,6 @@ export class StartNodeCommand extends BaseCommand {
         }
         terminal.sendText('cargo run -- --dev');
         terminal.show(false);
-
-        const tree = this.trees.get('nodes') as NodesTreeView;
-        tree.refresh();
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 }

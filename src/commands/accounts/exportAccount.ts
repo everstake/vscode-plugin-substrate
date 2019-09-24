@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { AccountItem } from "@/trees";
 
 export class ExportAccountCommand extends BaseCommand {
@@ -9,14 +9,12 @@ export class ExportAccountCommand extends BaseCommand {
         const accounts = this.substrate.getAcccounts();
         const account = accounts.find(account => account.meta['name'] === item.label);
         if (!account) {
-            console.log('Account not found');
-            vscode.window.showInformationMessage('Account not found');
+            log('Account not found', 'info', false);
             return;
         }
         const result = await vscode.window.showSaveDialog({});
         if (!result) {
-            console.log('Account wasn\'t exported');
-            vscode.window.showInformationMessage('Account wasn\'t exported');
+            log('Account wasn\'t exported', 'info', false);
             return;
         }
         fs.writeFileSync(result.fsPath, JSON.stringify(account), 'utf8');

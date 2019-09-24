@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand } from "@/common";
 import { NodeItem } from "@/trees";
 
 export class ConnectToNodeCommand extends BaseCommand {

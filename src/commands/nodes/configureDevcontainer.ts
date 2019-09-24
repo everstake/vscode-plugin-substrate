@@ -3,53 +3,13 @@ import * as path from 'path';
 import * as fs from 'fs';
 import to from 'await-to-js';
 
-import BaseCommand from "@/common/baseCommand";
-
-const devcontainerFile = {
-	name: "Rust",
-	dockerFile: "Dockerfile",
-	runArgs: [
-		"--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"
-	],
-	settings: {
-		"terminal.integrated.shell.linux": "/bin/bash",
-		"lldb.adapterType": "bundled",
-		"lldb.executable": "/usr/bin/lldb"
-	},
-	extensions: [
-		"rust-lang.rust",
-		"enfipy.plugin-polkadot",
-		"bungcip.better-toml",
-		"vadimcn.vscode-lldb"
-	]
-};
-
-const dockerFile = `# Phusion image based on Ubuntu
-FROM phusion/baseimage:0.10.2
-
-ENV TERM=xterm
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && \\
-    apt-get --yes --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade && \\
-    apt-get --yes --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
-RUN apt-get install -y cmake pkg-config libssl-dev git clang && \\
-	curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH=/root/.cargo/bin:$PATH
-
-RUN rustup toolchain install nightly && \\
-    rustup default nightly && \\
-	rustup target add wasm32-unknown-unknown --toolchain nightly && \\
-	cargo install --git https://github.com/alexcrichton/wasm-gc
-
-ENV DEBIAN_FRONTEND=
-`;
+import { BaseCommand, log } from "@/common";
 
 export class ConfigureDevcontainerCommand extends BaseCommand {
     async run() {
         const folders = vscode.workspace.workspaceFolders;
         if (!folders) {
-            vscode.window.showErrorMessage("Can not get workspace folder path");
+            log('Can not get workspace folder path', 'error', true);
             return;
         }
         const workspacePath: string = folders[0].uri.fsPath;
@@ -60,37 +20,41 @@ export class ConfigureDevcontainerCommand extends BaseCommand {
 
         let [err] = await to(fs.promises.access(folderPath, fs.constants.W_OK | fs.constants.R_OK));
         if (err) {
-            // console.error(`Failed to access devcontainer folder: ${err}`);
             if (!await this.createFolder(folderPath)) {
-                vscode.window.showInformationMessage('Failed to create devcontainer folder');
+                log('Failed to create devcontainer folder', 'error', true);
                 return;
             }
         }
-
         [err] = await to(fs.promises.access(devcontainerFilePath, fs.constants.W_OK | fs.constants.R_OK));
         if (err) {
-            // console.error(`Failed to access devcontainer file: ${err}`);
+            const devcontainerFile = this.substrate.config.get<string>('plugin-polkadot.defaultDevcontainerFile');
+            if (!devcontainerFile) {
+                log('Invalid devcontainer file in configuration', 'error', true);
+                return;
+            }
             const data = `${JSON.stringify(devcontainerFile, null, 2)}\n`;
             if (!await this.createFile(devcontainerFilePath, data)) {
-                vscode.window.showInformationMessage('Failed to create devcontainer file');
+                log('Failed to create devcontainer file', 'error', true);
                 return;
             } else {
-                vscode.window.showInformationMessage('Successfully created devcontainer file');
+                log('Successfully created devcontainer file', 'info', true);
             }
         }
-
         [err] = await to(fs.promises.access(dockerFilefilePath, fs.constants.W_OK | fs.constants.R_OK));
         if (err) {
-            // console.error(`Failed to access docker file: ${err}`);
+            const dockerFile = this.substrate.config.get<string>('plugin-polkadot.defaultDevcontainerDockerfile');
+            if (!dockerFile) {
+                log('Invalid devcontainer Dockerfile file in configuration', 'error', true);
+                return;
+            }
             if (!await this.createFile(dockerFilefilePath, dockerFile)) {
-                vscode.window.showInformationMessage('Failed to create devcontainer file');
+                log('Failed to create docker file', 'error', true);
             } else {
-                vscode.window.showInformationMessage('Successfully created devcontainer file');
+                log('Successfully created docker file', 'info', true);
             }
             return;
         }
-
-        vscode.window.showWarningMessage('Configuration already exists');
+        log('Configuration already exists', 'warn', true);
     }
 
     async createFolder(folderPath: string): Promise<boolean> {

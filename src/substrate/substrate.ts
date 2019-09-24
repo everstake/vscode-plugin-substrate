@@ -3,16 +3,17 @@ import * as util from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
 import to from 'await-to-js';
+import { exec as cp_exec } from 'child_process';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { KeyringPair$Json } from '@polkadot/keyring/types';
-import { exec as cp_exec } from 'child_process';
 import { SubmittableExtrinsicFunction, StorageEntryPromise } from '@polkadot/api/types';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { RegistryTypes } from '@polkadot/types/types';
 import { Abi } from '@polkadot/api-contract';
 
 import { NodeInfo, ContractCodeInfo, ContractInfo } from '@/trees';
+import { ConnectionHandler } from './connectionHandler';
 
 const exec = util.promisify(cp_exec);
 
@@ -20,46 +21,14 @@ export type AccountKey = KeyringPair$Json;
 export type ContractCodes = { [index: string]: ContractCodeInfo[] };
 export type Contracts = { [index: string]: ContractInfo[] };
 
-class ConnectHandler {
-    public totalRetries = 0;
-    public maxRetries = 0;
-    public callback = () => {};
-
-    constructor(maxRetries: number, callback: () => void) {
-        this.maxRetries = maxRetries;
-        this.callback = callback;
-    }
-
-    static create(maxRetries: number, callback: () => void): (...args: any[]) => any {
-        const conhan = new ConnectHandler(maxRetries, callback);
-        return conhan.handle.bind(conhan);
-    }
-
-    handle(...args: any[]): any {
-        for (const arg of args) {
-            const msg = (arg as Error).message;
-            if (msg && msg.indexOf('Unable to find plain type for') !== -1) {
-                vscode.window.showErrorMessage('You have to specify types at extrinsic panel to connect');
-                this.callback();
-                return;
-            }
-        }
-        if (this.totalRetries >= this.maxRetries) {
-            this.callback();
-            return;
-        }
-        this.totalRetries++;
-    }
-}
-
 export class Substrate {
     public isConnected = false;
     private api?: ApiPromise;
     private keyring = new Keyring({ type: 'sr25519' });
 
     constructor(
-        private statusBar: vscode.StatusBarItem,
         private context: vscode.ExtensionContext,
+        public config: vscode.WorkspaceConfiguration,
     ) {}
 
     getConnection(): ApiPromise | undefined {
@@ -70,55 +39,39 @@ export class Substrate {
         return this.keyring;
     }
 
-    async setup() {
-        this.statusBar.text = 'Setup extension...';
-        this.statusBar.show();
-
-        await this.setupConnection();
-        // await this.installSubstrate();
-    }
-
     async installSubstrate() {
         let [err, data] = await to(exec('which curl'));
         if (err) {
             console.log('You have to install "curl" first');
-            this.statusBar.hide();
             return;
         }
-
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
             console.log('Substrate already installed. Skipping installation');
-            this.statusBar.hide();
             return;
         }
-
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
             vscode.window.showInformationMessage(`Substrate failed to install. Error: ${err}`);
-            this.statusBar.hide();
             return;
         }
-
-        this.statusBar.hide();
         vscode.window.showInformationMessage('Successfully installed Substrate');
     }
 
     async setupConnection() {
         const nodes: NodeInfo[] = this.context.globalState.get('nodes') || [];
-
         const node = this.context.globalState.get('connected-node');
         const conNode = nodes.find(val => val.name === node);
         if (conNode) {
             await this.connectTo(conNode.name, conNode.endpoint);
         }
-
         const defaultNodeName = 'Default';
-        const defaultNodeEndpoint = 'ws://127.0.0.1:9944/';
+        const defaultNodeEndpoint = this.config.get<string>('plugin-polkadot.defaultConnectionURL', 'ws://127.0.0.1:9944/');
         const defaultNode = nodes.find(val => val.name === defaultNodeName);
         if (!defaultNode) {
             nodes.push({ endpoint: defaultNodeEndpoint, name: defaultNodeName } as NodeInfo);
             await this.context.globalState.update('nodes', nodes);
+    		await vscode.commands.executeCommand('nodes.refresh');
         }
     }
 
@@ -134,13 +87,12 @@ export class Substrate {
     async getTypes(): Promise<RegistryTypes | undefined> {
         const globalPath = this.context.globalStoragePath;
         const filePath = path.join(globalPath, 'types.json');
-        try {
-            const buf = await fs.promises.readFile(filePath);
-            return JSON.parse(buf.toString());
-        } catch (err) {
+        const [err, buf] = await to<Buffer>(fs.promises.readFile(filePath));
+        if (err) {
             console.log('File with types not found');
             return;
         }
+        return JSON.parse(buf!.toString());
     }
 
     async connectTo(name: string, endpoint: string, additionalTypes?: RegistryTypes) {
@@ -153,16 +105,20 @@ export class Substrate {
             const types = await this.getTypes();
             const provider = new WsProvider(endpoint);
             const api = new ApiPromise({ provider, types: {
+                ...this.config.get('plugin-polkadot.defaultSubstrateTypes', {}),
                 ...types,
                 ...additionalTypes,
             }});
-            api.on('error', ConnectHandler.create(5, () => {
-                console.error("Failed to connect");
-                vscode.window.showErrorMessage('Failed to connect');
-                api.disconnect();
-                this.isConnected = false;
-                vscode.commands.executeCommand('nodes.refresh');
-            }));
+            api.on('error', ConnectionHandler.create(
+                this.config.get<number>('plugin-polkadot.connectionRetryCount', 5),
+                () => {
+                    console.error("Failed to connect");
+                    vscode.window.showErrorMessage('Failed to connect');
+                    api.disconnect();
+                    this.isConnected = false;
+                    vscode.commands.executeCommand('nodes.refresh');
+                },
+            ));
             await api.isReady;
             this.api = api;
             this.isConnected = true;

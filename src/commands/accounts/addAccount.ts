@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { AccountsTreeView } from "@/trees";
 import { MultiStepInput } from '@/common';
 import { KeypairType } from '@polkadot/util-crypto/types';
@@ -18,7 +18,7 @@ export class AddAccountCommand extends BaseCommand {
         const state = {} as Partial<AccountInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            console.log('Account wasn\'t added');
+            log('Add account execution canceled', 'info', true);
             return;
         }
         const value = state as AccountInfo;

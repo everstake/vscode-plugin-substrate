@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
-import { AccountsTreeView, AccountItem } from "@/trees";
+import { BaseCommand, log } from "@/common";
+import { AccountItem } from "@/trees";
 import { MultiStepInput } from '@/common';
 
 type AccountInfo = { name: string };
@@ -17,15 +17,13 @@ export class RenameAccountCommand extends BaseCommand {
         const state = {} as Partial<AccountInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            console.log('Account name wasn\'t changed');
+            log('Account name wasn\'t changed', 'info', true);
             return;
         }
         const value = state as AccountInfo;
 
         await this.substrate.alterNameOfKeyringPair(item.label, value.name);
-
-        const tree = this.trees.get('accounts') as AccountsTreeView;
-        tree.refresh();
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 
     async addName(input: MultiStepInput, state: Partial<AccountInfo>) {

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { StateItem } from "@/trees";
 import { MultiStepInput } from "@/common";
 
@@ -16,7 +16,7 @@ export class SubscribeCommand extends BaseCommand {
     async run(item: StateItem) {
         const state = this.substrate.getState(item.module, item.label);
         if (state === undefined) {
-        	vscode.window.showInformationMessage('Can not get chain state');
+            log('Can not get chain state', 'error', true);
             return;
         }
         let argument = undefined;
@@ -40,7 +40,7 @@ export class SubscribeCommand extends BaseCommand {
                 panel.webview.html = this.getWebviewContent(item.module, item.label, data.isEmpty ? 'empty' : data);
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Failed with error: ${err}`);
+            log(`Failed with error: ${err}`, 'error', true);
         }
     }
 

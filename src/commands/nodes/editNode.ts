@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { MultiStepInput, BaseCommand, log } from "@/common";
 import { NodesTreeView, NodeInfo, NodeItem } from "@/trees";
-import { MultiStepInput } from '@/common';
 
 export class EditNodeCommand extends BaseCommand {
     options = {
@@ -12,7 +11,6 @@ export class EditNodeCommand extends BaseCommand {
     nodeNames: string[] = [];
 
     async run(item: NodeItem) {
-        const tree = this.trees.get('nodes') as NodesTreeView;
         const nodes: NodeInfo[] = this.context.globalState.get('nodes') || [];
         let index: number = -1;
         this.nodeNames = nodes.map((val, ind) => {
@@ -22,17 +20,14 @@ export class EditNodeCommand extends BaseCommand {
             return val.name;
         });
         if (index === -1) {
-            console.log('Node not found');
-            vscode.window.showInformationMessage('Node not found');
+            log('Node not found', 'warn', true);
             return;
         }
 
         const state = { name: item.label, endpoint: item.description } as Partial<NodeInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            // Todo: Move to logger
-            console.log('Node wasn\'t changed');
-            vscode.window.showInformationMessage('Node wasn\'t changed');
+            log('Node wasn\'t changed', 'info', true);
             return;
         }
 
@@ -45,8 +40,7 @@ export class EditNodeCommand extends BaseCommand {
 
         nodes[index] = state as NodeInfo;
         await this.context.globalState.update('nodes', nodes);
-
-        tree.refresh();
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 
     async addName(input: MultiStepInput, state: Partial<NodeInfo>) {

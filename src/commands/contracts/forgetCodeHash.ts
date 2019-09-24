@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { ContractCodeItem } from '@/trees';
 
 export class ForgetCodeHashCommand extends BaseCommand {
@@ -15,9 +15,9 @@ export class ForgetCodeHashCommand extends BaseCommand {
             }
             await this.substrate.updateConnectionContractCodes(codes);
         } catch (err) {
-            vscode.window.showWarningMessage('You are not connected to node');
+            log('You are not connected to node', 'warn', true);
         }
         await vscode.commands.executeCommand('nodes.refresh');
-        vscode.window.showInformationMessage(`Successfully removed code hash "${item.label}"`);
+        log(`Successfully removed code hash "${item.label}"`, 'info', true);
     }
 }

@@ -1,37 +1,25 @@
 import * as vscode from 'vscode';
 
-import * as commands from '@/commands';
-import * as treeViews from '@/trees';
 import { Substrate } from '@/substrate';
+import registerTrees from '@/trees';
+import { setupConfiguration, log } from '@/common';
+import registerCommands from '@/commands';
 
 export async function activate(context: vscode.ExtensionContext) {
- 	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
-	const substrate = new Substrate(statusBar, context);
+	const config = await setupConfiguration();
+	const substrate = new Substrate(context, config);
 
-	const trees = new Map();
-	trees.set('nodes', new treeViews.NodesTreeView(context, substrate));
-	trees.set('extrinsics', new treeViews.ExtrinsicsTreeView(context, substrate));
-	trees.set('states', new treeViews.StatesTreeView(context, substrate));
-	trees.set('accounts', new treeViews.AccountsTreeView(context, substrate));
-	trees.set('contracts', new treeViews.ContractsTreeView(context, substrate));
+	const trees = await registerTrees(context, substrate);
+	await registerCommands(context, trees, substrate);
 
-	try {
-		for (const [treeName, treeObject] of trees) {
-			const treeCom = (commands as any)[treeName];
-			for (const name of Object.keys(treeCom)) {
-				const _ = new treeCom[name](context, trees, substrate, treeName);
-			}
-			vscode.window.registerTreeDataProvider(treeName, treeObject);
-		}
-	} catch(err) {
-		console.log(`Failed to register commands: ${err}`);
-		vscode.window.showInformationMessage(`Failed to register commands: ${err.message}`);
-		return;
+	if (config.get<boolean>('plugin-polkadot.setupDefaultConnectionOnStart')) {
+		await substrate.setupConnection();
 	}
-
-	await substrate.setup();
+	if (config.get<boolean>('plugin-polkadot.installSubstrateUpdatesOnStart')) {
+		await substrate.installSubstrate();
+	}
 }
 
 export async function deactivate() {
-	vscode.window.showInformationMessage('Thanks for a great time together');
+	log('Thanks for a great time together', 'info', true);
 }

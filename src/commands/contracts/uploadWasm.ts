@@ -4,7 +4,7 @@ import * as path from 'path';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { compactAddLength } from '@polkadot/util';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { MultiStepInput } from '@/common';
 import { AccountKey } from '@/substrate';
 
@@ -27,7 +27,7 @@ export class UploadWasmCommand extends BaseCommand {
         const state = {} as Partial<UploadWasmArgs>;
         const argResult = await MultiStepInput.run(input => this.addCode(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('WASM upload execution canceled');
+            log('WASM upload execution canceled', 'info', true);
             return;
         }
         const value = state as UploadWasmArgs;
@@ -35,7 +35,7 @@ export class UploadWasmCommand extends BaseCommand {
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                vscode.window.showErrorMessage('Not connected to a node');
+                log('Not connected to a node', 'error', true);
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
@@ -45,9 +45,9 @@ export class UploadWasmCommand extends BaseCommand {
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
-                    console.log('Completed at block hash', finalized);
+                    log(`Completed at block hash: ${finalized}`, 'info', false);
 
-                    console.log('Events:');
+                    log('Events:', 'info', false);
                     let error: string = '';
                     let resultHash: string = '';
                     events.forEach(({ phase, event: { data, method, section } }: any) => {
@@ -61,25 +61,25 @@ export class UploadWasmCommand extends BaseCommand {
                                 res.lastIndexOf('"]'),
                             );
                         }
-                        console.log(res);
+                        log(res, 'info', false);
                     });
                     if (error !== '') {
                         // Todo: Get error
-                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        log(`Failed on block "${finalized}" with error: ${error}`, 'error', true);
                         return;
                     }
                     if (resultHash === '') {
-                        vscode.window.showErrorMessage(`Completed on block "${finalized}" but failed to get event result`);
+                        log(`Completed on block "${finalized}" but failed to get event result`, 'warn', true);
                         return;
                     }
-                    vscode.window.showInformationMessage(`Completed on block ${finalized} with code hash ${resultHash}`);
-                    this.substrate.saveContractCode(value.code_bundle_name, resultHash).catch(() => {
-                        vscode.window.showErrorMessage(`Failed to store contract`);
+                    this.substrate.saveContractCode(value.code_bundle_name, resultHash).catch(err => {
+                        log(`Failed to store contract: ${err.message}`, 'error', true);
                     });
+                    log(`Completed on block ${finalized} with code hash ${resultHash}`, 'info', true);
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Error on put code: ${err.message}`);
+            log(`Error on put code: ${err.message}`, 'error', true);
         }
     }
 
@@ -98,7 +98,6 @@ export class UploadWasmCommand extends BaseCommand {
         if (!uri || uri && uri.length <= 0) {
             throw Error('Code not specified');
         }
-        // Todo: Fix error on cancel
         const codePath = uri[0].fsPath;
         const wasm: Uint8Array = await fs.promises.readFile(codePath);
         const isWasmValid = wasm.subarray(0, 4).join(',') === '0,97,115,109'; // '\0asm'

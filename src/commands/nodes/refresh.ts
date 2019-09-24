@@ -1,4 +1,4 @@
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand } from "@/common";
 
 export class RefreshCommand extends BaseCommand {
     async run() {

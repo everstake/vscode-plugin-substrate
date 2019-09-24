@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, MultiStepInput, log } from "@/common";
 import { NodesTreeView, NodeInfo } from "@/trees";
-import { MultiStepInput } from '@/common';
 
 export class AddNodeCommand extends BaseCommand {
     options = {
@@ -19,7 +18,7 @@ export class AddNodeCommand extends BaseCommand {
         const state = { endpoint: 'ws://127.0.0.1:9944/' } as Partial<NodeInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            console.log('Node wasn\'t added');
+            log('Node wasn\'t added', 'warn', true);
             return;
         }
 

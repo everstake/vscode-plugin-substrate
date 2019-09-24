@@ -3,7 +3,7 @@ import { mnemonicGenerate, randomAsU8a } from '@polkadot/util-crypto';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { u8aToHex } from '@polkadot/util';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { AccountsTreeView } from "@/trees";
 import { MultiStepInput } from '@/common';
 
@@ -26,15 +26,14 @@ export class CreateAccountCommand extends BaseCommand {
         const state = {} as Partial<AccountInfo>;
         const result = await MultiStepInput.run(input => this.addName(input, state));
         if (!result) {
-            console.log('Account wasn\'t added');
+            log('Create account execution canceled', 'info', true);
             return;
         }
         const value = state as AccountInfo;
 
         await this.substrate.createKeyringPairWithPassword(value.key, value.name, value.type, value.password);
 
-        const tree = this.trees.get('accounts') as AccountsTreeView;
-        tree.refresh();
+        await vscode.commands.executeCommand('nodes.refresh');
     }
 
     async addName(input: MultiStepInput, state: Partial<AccountInfo>) {

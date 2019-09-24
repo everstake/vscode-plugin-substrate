@@ -1,16 +1,16 @@
 import * as vscode from 'vscode';
 import * as clipboard from 'clipboardy';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { AccountItem } from "@/trees";
 
 export class CopyAddressCommand extends BaseCommand {
     async run(item: AccountItem) {
         try {
             await clipboard.write(item.description);
-            vscode.window.showInformationMessage('Adddress copied to clipboard');
+            log('Adddress copied to clipboard', 'info', true);
         } catch (err) {
-            vscode.window.showErrorMessage(`Failed to copy address to clipboard: ${err.message}`);
+            log(`Failed to copy address to clipboard: ${err.message}`, 'error', true);
         }
     }
 }

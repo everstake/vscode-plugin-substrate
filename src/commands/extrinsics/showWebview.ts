@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand } from "@/common";
 
 const loadScript = (context: vscode.ExtensionContext, path: string) => {
     const uri = vscode.Uri.file(context.asAbsolutePath(path)).with({ scheme: 'vscode-resource'}).toString();

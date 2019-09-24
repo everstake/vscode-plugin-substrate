@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { MultiStepInput } from '@/common';
 
 type AddExistingCodeArgs = {
@@ -19,7 +19,7 @@ export class AddExistingCodeCommand extends BaseCommand {
         const state = {} as Partial<AddExistingCodeArgs>;
         const argResult = await MultiStepInput.run(input => this.addCodeHash(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Add existing code execution canceled');
+            log('Add existing code execution canceled', 'info', true);
             return;
         }
         const value = state as AddExistingCodeArgs;

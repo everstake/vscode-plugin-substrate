@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import { KeyringPair } from '@polkadot/keyring/types';
 
-import BaseCommand from "@/common/baseCommand";
+import { MultiStepInput, MultiStepInputCallback, BaseCommand, log } from "@/common";
 import { Extrinsic, ExtrinsicParameter } from "@/trees";
-import { assets, MultiStepInput, MultiStepInputCallback } from '@/common';
 import { AccountKey } from '@/substrate';
 
 type ExtrinsicArgs = {
@@ -21,7 +20,7 @@ export class RunExtrinsicCommand extends BaseCommand {
     async run(item: Extrinsic) {
         const extrinsic = this.substrate.getExtrinsic(item.module, item.label);
         if (extrinsic === undefined) {
-        	vscode.window.showInformationMessage('Not connected to node');
+            log('Not connected to node', 'warn', true);
             return;
         }
         const extObj = extrinsic.toJSON();
@@ -30,54 +29,53 @@ export class RunExtrinsicCommand extends BaseCommand {
         const state = { params, args: {} } as Partial<ExtrinsicArgs>;
         const argResult = await MultiStepInput.run(input => this.nextArgument(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Extrinsic execution canceled');
+            log('Extrinsic execution canceled', 'info', true);
             return;
         }
         const value = state as ExtrinsicArgs;
         if (value.account.isLocked) {
-            vscode.window.showErrorMessage('Canceling extrinsic execution due to KeyringPair decode error');
+            log('Canceling extrinsic execution due to KeyringPair decode error', 'warn', true);
             return;
         }
 
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                vscode.window.showErrorMessage('Not connected to a node');
+                log('Not connected to a node', 'error', true);
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
             const unsignedTransaction = extrinsic(...Object.values(value.args));
 
-            // Todo: Subscribe on `Unable to decode storage system.events` error
             con.on('error', (args) => {
-                console.log("TCL: RunExtrinsicCommand -> run -> args", args);
+                log(`Failed to execute extrinsic with args: ${args}`, 'error', false);
             });
 
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
-                    console.log('Completed at block hash', finalized);
+                    log(`Completed at block hash: ${finalized}`, 'info', false);
 
-                    console.log('Events:');
+                    log('Events:', 'info', false);
                     let error: string = '';
                     events.forEach(({ phase, event: { data, method, section } }: any) => {
                         const res = `\t ${phase.toString()} : ${section}.${method} ${data.toString()}`;
                         if (res.indexOf('Failed') !== -1) {
                             error += res;
                         }
-                        console.log(res);
+                        log(res, 'info', false);
                     });
 
                     if (error !== '') {
                         // Todo: Get error
-                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        log(`Failed on block "${finalized}" with error: ${error}`, 'error', true);
                     } else {
-                        vscode.window.showInformationMessage(`Completed at block hash: ${finalized}`);
+                        log(`Completed at block hash: ${finalized}`, 'info', true);
                     }
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Error on extrinsic: ${err.message}`);
+            log(`Error on extrinsic: ${err.message}`, 'error', false);
         }
     }
 
@@ -116,19 +114,19 @@ export class RunExtrinsicCommand extends BaseCommand {
     async textInput(input: MultiStepInput, state: Partial<ExtrinsicArgs>, param: ExtrinsicParameter) {
         const prompt = `${param.name}: ${param.type}`;
         const val = state.args![input.CurrentStepNumber - 1];
-        const button = {
-            iconPath: assets(this.context, 'dark', 'file.svg'),
-            tooltip: 'Open from file',
-        };
+        // const button = {
+        //     iconPath: assets(this.context, 'dark', 'file.svg'),
+        //     tooltip: 'Open from file',
+        // };
         const result = await input.showInputBox({
             ...this.options,
             prompt,
             placeholder: 'ex. Some data',
             value: (typeof val === 'string') ? val : '',
             validate: async (value) => !value || !value.trim() ? `${param.name} is required` : '',
-            buttons: [button],
+            // buttons: [button],
         });
-        // Result of click on new button here
+        // Todo: Add parse result of click on the button here
         state.args![param.name as any] = result;
     }
 

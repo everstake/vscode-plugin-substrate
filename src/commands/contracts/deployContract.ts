@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { Abi } from '@polkadot/api-contract';
 import { KeyringPair } from '@polkadot/keyring/types';
 
-import BaseCommand from "@/common/baseCommand";
+import { BaseCommand, log } from "@/common";
 import { MultiStepInput } from '@/common';
 import { AccountKey } from '@/substrate';
 import { ContractABIArg } from '@polkadot/api-contract/types';
@@ -28,7 +28,7 @@ export class DeployContractCommand extends BaseCommand {
         const state = { params: {} } as Partial<DeployContractArgs>;
         const argResult = await MultiStepInput.run(input => this.addCodeHash(input, state));
         if (!argResult) {
-            vscode.window.showInformationMessage('Deploy contract execution canceled');
+            log('Deploy contract execution canceled', 'info', true);
             return;
         }
         const value = state as DeployContractArgs;
@@ -36,7 +36,7 @@ export class DeployContractCommand extends BaseCommand {
         try {
             const con = this.substrate.getConnection();
             if (!con) {
-                vscode.window.showErrorMessage('Not connected to a node');
+                log('Not connected to a node', 'error', true);
                 return;
             }
             const nonce = await con.query.system.accountNonce(value.account.address);
@@ -51,9 +51,9 @@ export class DeployContractCommand extends BaseCommand {
             await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
-                    console.log('Completed at block hash', finalized);
+                    log(`Completed at block hash: ${finalized}`, 'info', false);
 
-                    console.log('Events:');
+                    log('Events:', 'info', false);
                     let error: string = '';
                     let resultHash: string = '';
                     events.forEach(({ phase, event: { data, method, section } }: any) => {
@@ -67,25 +67,25 @@ export class DeployContractCommand extends BaseCommand {
                                 res.lastIndexOf('",'),
                             );
                         }
-                        console.log(res);
+                        log(res, 'info', false);
                     });
                     if (error !== '') {
                         // Todo: Get error
-                        vscode.window.showErrorMessage(`Failed on block "${finalized}" with error: ${error}`);
+                        log(`Failed on block "${finalized}" with error: ${error}`, 'error', true);
                         return;
                     }
                     if (resultHash === '') {
-                        vscode.window.showWarningMessage(`Completed on block "${finalized}" but failed to get event result`);
+                        log(`Completed on block "${finalized}" but failed to get event result`, 'info', true);
                         return;
                     }
-                    vscode.window.showInformationMessage(`Completed on block ${finalized} with code hash ${resultHash}`);
-                    this.substrate.saveContract(value.contract_name, resultHash, value.contract_abi).catch(() => {
-                        vscode.window.showErrorMessage(`Failed to store contract`);
+                    this.substrate.saveContract(value.contract_name, resultHash, value.contract_abi).catch(err => {
+                        log(`Failed to store contract: ${err.message}`, 'error', true);
                     });
+                    log(`Completed on block ${finalized} with code hash ${resultHash}`, 'info', true);
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage(`Error on deploy ccontract: ${err.message}`);
+            log(`Error on deploy ccontract: ${err.message}`, 'error', true);
         }
     }
 
