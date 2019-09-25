@@ -19,4 +19,4 @@ jobs:
       - name: Publish plugin
         env:
           PUBLISHER_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
-        run: echo $PUBLISHER_TOKEN | ./node_modules/.bin/vsce login enfipy && ./node_modules/.bin/vsce publish --yarn
+        run: ./node_modules/.bin/vsce publish -p $PUBLISHER_TOKEN --yarn
