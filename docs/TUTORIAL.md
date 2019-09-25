@@ -53,7 +53,7 @@ Let’s go through the plugin main features and see what’s happening.
 To compile this plugin:
 
 ```bash
-$ git clone https://github.com/everstake/VSCode-Atom-Plugin.git vscode-substrate
+$ git clone https://github.com/everstake/vscode-plugin-substrate.git vscode-substrate
 $ cd vscode-substrate
 $ yarn install
 ```

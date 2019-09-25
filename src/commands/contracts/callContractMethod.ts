@@ -47,7 +47,7 @@ export class CallContractMethodCommand extends BaseCommand {
                 methodExec(...value.params),
             );
 
-            await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
+            const cb = await unsignedTransaction.sign(value.account, { nonce: nonce as any }).send(({ events = [], status }: any) => {
                 if (status.isFinalized) {
                     const finalized = status.asFinalized.toHex();
                     log(`Completed at block hash: ${finalized}`, 'info', false);
@@ -69,6 +69,7 @@ export class CallContractMethodCommand extends BaseCommand {
                     log(`Completed on block ${finalized}`, 'info', true);
                 }
             });
+            // Get results from contract
         } catch (err) {
             log(`Error on put code: ${err.message}`, 'error', true);
         }
