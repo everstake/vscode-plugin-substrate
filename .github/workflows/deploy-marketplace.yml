@@ -21,4 +21,4 @@ jobs:
       - name: Publish plugin
         env:
           PUBLISHER_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
-        run: vsce publish -p $PUBLISHER_TOKEN --yarn
+        run: ./node_modules/.bin/vsce publish -p $PUBLISHER_TOKEN --yarn
