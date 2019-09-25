@@ -16,9 +16,7 @@ jobs:
           node-version: '10.16'
       - name: Install dependencies
         run: yarn install
-      - name: Build plugin
-        run: yarn compile && yarn package
       - name: Publish plugin
         env:
           PUBLISHER_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
-        run: ./node_modules/.bin/vsce publish -p $PUBLISHER_TOKEN --yarn
+        run: echo $PUBLISHER_TOKEN | ./node_modules/.bin/vsce login enfipy && ./node_modules/.bin/vsce publish --yarn
