@@ -2,7 +2,7 @@
   "name": "plugin-polkadot",
   "displayName": "Substrate plugin",
   "description": "Plugin for Parity Substrate",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {

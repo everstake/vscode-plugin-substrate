@@ -1,4 +1,8 @@
 <h1 align="center">VSCode Plugin for Substrate</h1>
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=enfipy.plugin-polkadot"><img src="https://vsmarketplacebadge.apphb.com/version/enfipy.plugin-polkadot.svg" alt="Version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=enfipy.plugin-polkadot"><img src="https://vsmarketplacebadge.apphb.com/installs-short/enfipy.plugin-polkadot.svg" alt="Installs"></a>
+</p>
 
 This plugin provides a convenient development environment for Parity Substrate framework.
 
