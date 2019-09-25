@@ -3,7 +3,7 @@ import { Abi } from '@polkadot/api-contract';
 
 import { ContractItem, ContractCodeItem, SeparatorItem, InfoItem } from '@/trees/items';
 import { Substrate } from '@/substrate';
-import { TreeView } from '@/common';
+import { TreeView, log } from '@/common';
 
 export type ContractInfo = { name: string, address: string, abi: Abi };
 export type ContractCodeInfo = { name: string, hash: string };
@@ -40,7 +40,7 @@ export class ContractsTreeView extends TreeView<Item> {
 				...contractItems,
 			];
 		} catch (err) {
-			console.log(`Failed to get contracts and codes: ${err.message}`);
+			log(`Failed to get contracts and codes: ${err.message}`, 'error', false);
 			return [];
 		}
 	}

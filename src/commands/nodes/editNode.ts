@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { MultiStepInput, BaseCommand, log } from "@/common";
-import { NodesTreeView, NodeInfo, NodeItem } from "@/trees";
+import { NodeInfo, NodeItem } from "@/trees";
 
 export class EditNodeCommand extends BaseCommand {
     options = {
@@ -30,15 +30,15 @@ export class EditNodeCommand extends BaseCommand {
             log('Node wasn\'t changed', 'info', true);
             return;
         }
+        const value = state as NodeInfo;
 
         const connectedNode = this.context.globalState.get('connected-node');
         if (connectedNode === item.label) {
-            await this.context.globalState.update('connected-node', state.name);
+            await this.context.globalState.update('connected-node', value.name);
         }
+        await this.substrate.renameCodesAndContractsNode(item.label, value.name);
 
-        // Todo: Update contracts and contract codes
-
-        nodes[index] = state as NodeInfo;
+        nodes[index] = value;
         await this.context.globalState.update('nodes', nodes);
         await vscode.commands.executeCommand('nodes.refresh');
     }

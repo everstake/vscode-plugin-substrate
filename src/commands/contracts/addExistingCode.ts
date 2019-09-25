@@ -26,9 +26,9 @@ export class AddExistingCodeCommand extends BaseCommand {
 
         try {
             await this.substrate.saveContractCode(value.code_bundle_name, value.code_hash);
-            vscode.window.showInformationMessage('Successfully added code hash');
+            log('Successfully added code hash', 'info', true);
         } catch (err) {
-            vscode.window.showErrorMessage(`Failed to store code hash`);
+            log(`Failed to store code hash: ${err.message}`, 'error', true);
         }
     }
 

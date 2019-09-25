@@ -13,6 +13,7 @@ import { RegistryTypes } from '@polkadot/types/types';
 import { Abi } from '@polkadot/api-contract';
 
 import { NodeInfo, ContractCodeInfo, ContractInfo } from '@/trees';
+import { log } from '@/common';
 import { ConnectionHandler } from './connectionHandler';
 
 const exec = util.promisify(cp_exec);
@@ -42,20 +43,20 @@ export class Substrate {
     async installSubstrate() {
         let [err, data] = await to(exec('which curl'));
         if (err) {
-            console.log('You have to install "curl" first');
+            log('You have to install "curl" first to proceed with substrate installation', 'error', false);
             return;
         }
         [err, data] = await to(exec('which substrate & which substrate-node-new'));
         if (!err && data!.stdout.indexOf('/') !== -1) {
-            console.log('Substrate already installed. Skipping installation');
+            log('Substrate already installed. Skipping installation', 'info', false);
             return;
         }
         [err, data] = await to(exec('curl https://getsubstrate.io -sSf | bash -s -- --fast'));
         if (err) {
-            vscode.window.showInformationMessage(`Substrate failed to install. Error: ${err}`);
+            log(`Substrate failed to install. Error: ${err.message}`, 'error', true);
             return;
         }
-        vscode.window.showInformationMessage('Successfully installed Substrate');
+        log('Successfully installed Substrate', 'info', true);
     }
 
     async setupConnection() {
@@ -89,7 +90,7 @@ export class Substrate {
         const filePath = path.join(globalPath, 'types.json');
         const [err, buf] = await to<Buffer>(fs.promises.readFile(filePath));
         if (err) {
-            console.log('File with types not found');
+            log('File with types not found', 'error', false);
             return;
         }
         return JSON.parse(buf!.toString());
@@ -98,7 +99,7 @@ export class Substrate {
     async connectTo(name: string, endpoint: string, additionalTypes?: RegistryTypes) {
         const connectedNode = this.context.globalState.get('connected-node');
         if (connectedNode && connectedNode === 'name') {
-            console.log('Already connected');
+            log('Already connected', 'info', false);
             return;
         }
         try {
@@ -304,6 +305,21 @@ export class Substrate {
             });
         }
         await this.updateConnectionContracts(contracts);
+    }
+
+    async renameCodesAndContractsNode(oldNodeName: string, newNodeName: string): Promise<void> {
+        const codes = this.getContractCodes();
+        const contracts = this.getContracts();
+
+        const nodeCodes = codes[oldNodeName];
+        const nodeContracts = contracts[oldNodeName];
+        delete codes[oldNodeName];
+        delete contracts[oldNodeName];
+        codes[newNodeName] = nodeCodes;
+        contracts[newNodeName] = nodeContracts;
+
+        await this.updateContractCodes(codes);
+        await this.updateContracts(contracts);
     }
 
     getExtrinsicModules(): string[] {

@@ -2,7 +2,7 @@
   "name": "plugin-polkadot",
   "displayName": "Substrate plugin",
   "description": "Plugin for Parity Substrate",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "enfipy",
   "license": "Apache-2.0",
   "repository": {
@@ -163,7 +163,7 @@
       },
       {
         "command": "nodes.refresh",
-        "title": "Refresh"
+        "title": "Refresh tree views"
       },
       {
         "command": "nodes.editNode",

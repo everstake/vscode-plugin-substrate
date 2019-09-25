@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Trees } from '@/trees';
 import { Substrate } from '@/substrate';
+import { log } from '@/common';
 
 import * as accounts from './accounts';
 import * as extrinsics from './extrinsics';
@@ -34,8 +35,7 @@ export default async (context: vscode.ExtensionContext, trees: Trees, substrate:
 			vscode.window.registerTreeDataProvider(treeName, treeObject);
 		}
 	} catch(err) {
-		console.log(`Failed to register commands: ${err}`);
-		vscode.window.showErrorMessage(`Failed to register commands: ${err.message}`);
+		log(`Failed to register commands: ${err.message}`, 'error', true);
 		return;
 	}
 };
