@@ -1,0 +1,24 @@
+name: 'Release Vscode Plugin'
+on:
+  push:
+    branches:
+    - master
+jobs:
+  marketplacePublish:
+    name: Marketplace publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.16'
+      - name: Install dependencies
+        run: yarn install
+      - name: Build plugin
+        run: yarn compile && yarn package
+      - name: Publish plugin
+        env:
+          PUBLISHER_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
+        run: vsce publish -p $PUBLISHER_TOKEN --yarn
