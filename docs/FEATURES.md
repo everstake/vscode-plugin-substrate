@@ -4,7 +4,7 @@ In this file, you will find the main features of the `Substrate plugin`.
 
 ## Features
 
-This extension provides the next features:
+After installation of this extension, you will get great support of rust-lang (with RLS) and a lot of features related to `substrate`. This extension provides the following features to enhance your experience in developing with `substrate`:
 
 1. __Manage nodes and connections__
    1. [Add node](#add-node)
