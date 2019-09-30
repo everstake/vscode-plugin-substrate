@@ -4,7 +4,7 @@ In this file, you will find the main features of the `Substrate plugin`.
 
 ## Features
 
-After installation of this extension, you will get great support of rust-lang (with RLS) and a lot of features related to `substrate`. This extension provides the following features to enhance your experience in developing with `substrate`:
+This extension provides the following features to enhance your experience in developing with `substrate`:
 
 1. __Manage nodes and connections__
    1. [Add node](#add-node)
@@ -40,6 +40,17 @@ After installation of this extension, you will get great support of rust-lang (w
    6. [Forget contract](#forget-contract)
    7. [Copy hash](#copy-hash)
    8. [Call contract method](#call-contract-method)
+
+After installation of this extension, you will get language support for Rust to Visual Studio Code (with RLS). Supports:
+
+* code completion
+* jump to definition, peek definition, find all references, symbol search
+* types and documentation on hover
+* code formatting
+* refactoring (rename, deglob)
+* error squiggles and apply suggestions from errors
+* snippets
+* build tasks
 
 ## How to use
 

@@ -44,6 +44,12 @@ After successful build, you will able to run rust, cargo and substrate bash exec
 
 ![Project inside devcontainer](images/devcontainer/5.png "Project inside devcontainer")
 
+### Step 3: To upload WASM to create contract
+
+To upload WASM you have to choose `workspaces/` folder in `root/` and then find your file.
+
+![Upload WASM](images/devcontainer/6.png "Upload WASM")
+
 ## Default demo
 
 Let’s go through the plugin main features and see what’s happening.
